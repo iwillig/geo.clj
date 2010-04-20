@@ -4,20 +4,20 @@
 
 (def factory (JTSFactoryFinder/getGeometryFactory nil))
 
-(defn makeCoord
+(defn createCoord
   "Creates a JTS Coordinate Seq"
-  [x y]
-  (Coordinate. x y))
+  ([coord] (Coordinate. (coord) ))
+  ([x y](Coordinate. x y)))
 
-(defn makePoint
+(defn createPoint
   "Creates a JTS Point from a X Y"
   [x y]
   (. factory createPoint (makeCoord x y)))
 
 
-(defn makeLineString
+(defn createLineString
   "Returns a JTS LineString"
-  [])
+  [& coords](map #(createCoord %) coords))
 
 (defn makePolygon [])
 
