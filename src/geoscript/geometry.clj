@@ -4,9 +4,11 @@
 
 (def factory (JTSFactoryFinder/getGeometryFactory nil))
 
+(defn valid? [geometry])
+
 (defn create-coord
   "Creates a JTS Coordinate Seq"
-  ([coord] (Coordinate. (apply coord) ))
+  ([coord] (Coordinate. (first coord) (second coord)))
   ([x y](Coordinate. x y)))
 
 (defn create-point
@@ -16,13 +18,16 @@
 
 
 (defn create-line-string
-  "Returns a JTS LineString"
-  [& coords](map #(create-coord %) coords))
+  "Creates a JTS LineString"
+  [coords]
+  (. factory createLineString (into-array (map create-coord coords))))
 
-(defn makePolygon [])
+(defn create-polygon
+  "Creates JTS Polygon"
+  [shell, & holes])
 
-(defn createMultiPoint [])
+(defn create-multi-point [])
 
-(defn createMultiLineString [])
+(defn create-multi-line-string [])
 
-(defn createMultiPolygon[])
+(defn create-multi-polygon[])
