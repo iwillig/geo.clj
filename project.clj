@@ -5,5 +5,5 @@
                  [org.geotools/gt-main "2.7-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.1.0"]]
   :dev-dependencies [[swank-clojure "1.1.0"]]
-  :main geoscript.core
+  :main geoscript.geometry
   )

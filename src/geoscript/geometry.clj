@@ -1,19 +1,25 @@
 (ns geoscript.geometry
-  (:import [com.vividsolutions.jts.geom.GeometryFactory])) 
+  (:import [org.geotools.geometry.jts JTSFactoryFinder]
+           [com.vividsolutions.jts.geom Coordinate])) 
 
-(def geom (GeometryFactory
+(def factory (JTSFactoryFinder/getGeometryFactory nil))
 
-(defn createPoint
-  "Creates a JTS Point"
-  [& x y ]
-  (format "POINT %s" x))
+(defn makeCoord
+  "Creates a JTS Coordinate Seq"
+  [x y]
+  (Coordinate. x y))
+
+(defn makePoint
+  "Creates a JTS Point from a X Y"
+  [x y]
+  (. factory createPoint (makeCoord x y)))
 
 
-(defn createLineString
+(defn makeLineString
   "Returns a JTS LineString"
   [])
 
-(defn createPolygon [])
+(defn makePolygon [])
 
 (defn createMultiPoint [])
 
