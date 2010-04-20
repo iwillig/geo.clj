@@ -12,7 +12,7 @@
 (defn createPoint
   "Creates a JTS Point from a X Y"
   [x y]
-  (. factory createPoint (makeCoord x y)))
+  (. factory createPoint (createCoord x y)))
 
 
 (defn createLineString
