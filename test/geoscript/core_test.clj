@@ -3,7 +3,7 @@
   (:use [clojure.test]))
 
 (deftest point
-  (createPoint 43 74))
+  (create-point 43 74))
 
 (deftest linestring
-  (createLineString [(43 73) (34 89) (12 43)])) 
+  (create-line-string [(43 73) (34 89) (12 43)])) 
