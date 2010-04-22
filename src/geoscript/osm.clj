@@ -1,1 +1,2 @@
-(ns geoscript.openstreetmap)
+(ns geoscript.openstreetmap
+  (:use [clojure.xml :only(parse)]))
