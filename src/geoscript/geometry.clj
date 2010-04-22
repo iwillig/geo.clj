@@ -7,7 +7,13 @@
 
 (defn valid?
   "checks the vaildity of a geometry"
-  [geometry])
+  [geometry]
+  (. geometry isValid))
+
+(defn buffer
+  [geometry distance]
+  (. geometry buffer distance))
+
 
 (defn from-wkt
   "Creates a geometry from well known text" 
@@ -20,25 +26,22 @@
   ([x y](Coordinate. x y)))
 
 
-(defn create-linear-ring
-  "Creates a JTS Linear ring"
-  [ring]
-  (. factory createLinearRing (into-array (map create-coord ring))))
-
 (defn create-point
   "Creates a JTS Point from a X Y"
   [x y]
   (. factory createPoint (create-coord x y)))
 
 
-(defn create-line-string
-  "Creates a JTS LineString"
-  [coords]
-  (. factory createLineString (into-array (map create-coord coords))))
+(defn create-linear-ring
+  "Creates a JTS Linear ring"
+  [ring]
+  (. factory createLinearRing (into-array (map create-coord ring))))
+
 
 (defn create-polygon
   "Creates JTS Polygon"
-  ([shell, & holes] (. factory createPolyon (create-linear-ring shell) (into-array holes))))
+  ([shell, & holes]
+     (. factory createPolyon (create-linear-ring shell) (into-array holes))))
 
 (defn create-multi-point [])
 

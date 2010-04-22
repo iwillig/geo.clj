@@ -1,5 +1,5 @@
-Ivan's mapping api
-==================
+geoscript.clj
+==============
 
 usage 
 ------
@@ -8,16 +8,15 @@ usage
    (write-postgis (buffer (read-shapefile "path/to/shapefile.shp") 10 ))
 
 
-Geometry creation
+geometry.clj
 ------------------
 
 create-point 
 create-linestring 
 create-polygon
+from-wkt
 
-fromstr
-
-Geometry operations
+processing.clj
 -------------------
 
 transform 
@@ -28,7 +27,7 @@ buffer
 union
 etc... 
 
-Rendering information
+render.clj
 --------------------- 
 draw - 
 
@@ -37,15 +36,7 @@ render-streaming
 
 map
 
-Styles - because styles are important for rendering
-++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-style-from-geom 
-style-from-css 
-style-from-sld
-
-
-Reading from different formats
+io.clj
 ------------------------------
 read-shapefile 
 read-kml
