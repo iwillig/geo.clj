@@ -32,4 +32,4 @@
   (equals (create-point 43 63.2)(create-point 39 32)))
 
 (deftest shapefile
-  (println (class (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp"))))
+  (println (class (read-shapefile "/Users/ivanwillig/Data/MTA/longisland.shp"))))

@@ -27,6 +27,7 @@
   "Creates a JTS Point from a X Y"
   [x y]
   (. factory createPoint (create-coord x y)))
+;;  { :x :y :geom (. factory createPoint (create-coord x y))} )
 
 
 (defn create-line-string
