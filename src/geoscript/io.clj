@@ -7,22 +7,27 @@
 (defn bounds
   [store]
   (def bound (. store getBounds ))
-  {:maxx (. bound getMaxX) :maxy (. bound getMaxY)
-   :minx (. bound getMinX) :miny (. bound getMinY)})
+  {:maxx (.getMaxX bound) :maxy (.getMaxY bound)
+   :minx (.getMinX bound) :miny (.getMinY bound)})
 
 (defn buffer
   [store]
   (. store features))
 
+(defn get-features
+  "FeatureCollection"
+  [collection]
+  (seq (.toArray collection)))
+
 (defn read-shapefile
-  "Reads and loads a shapefile"
+  "Reads and loads a shapefile"  
   [path]
-  (. (. (. DataStoreFinder getDataStore 
+  (def shape (. DataStoreFinder getDataStore 
            (doto (java.util.HashMap.)
-             (.put "url" (.(File. path) toURL))))
-        getFeatureSource )
-     getFeatures
-     ))
+             (.put "url" (.(File. path) toURL)))))
+  (.(.(.getFeatureSource shape (first (.getNames shape))) getFeatures) collection))
+
+
 
 
 (defn write-shapefile
