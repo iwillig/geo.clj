@@ -10,9 +10,6 @@
   [geometry]
   (. geometry isValid))
 
-(defn buffer
-  [geometry distance]
-  (. geometry buffer distance))
 
 
 (defn from-wkt
@@ -30,6 +27,13 @@
   "Creates a JTS Point from a X Y"
   [x y]
   (. factory createPoint (create-coord x y)))
+
+
+(defn create-line-string
+  "Creates a JTS Linear ring"
+  [input]
+  (. factory createLineString (into-array (map create-coord input))))
+
 
 
 (defn create-linear-ring

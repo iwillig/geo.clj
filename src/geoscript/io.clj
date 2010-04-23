@@ -1,13 +1,16 @@
 (ns geoscript.io
-  (:import [org.geotools.data DataStore]))
+  (:import
+   [java.io File]
+   [org.geotools.data DataStoreFinder]
+   [org.geotools.data DataStore]))
 
-(defn write-json
-  "Takes a geometry or a feature collection and creates a geojson"
-  [feature])
 
 (defn read-shapefile
-  "Reads and loads a shapefile into"
-  [path])
+  "Reads and loads a shapefile"
+  [path]
+  (. (. DataStoreFinder getDataStore 
+  (doto (java.util.HashMap.)(.put "url" (.(File. path) toURL)))) getFeatureSource))
+
 
 (defn write-shapefile
   "Takes a feature collection and writes it to a shapefile"

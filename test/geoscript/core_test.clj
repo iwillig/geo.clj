@@ -1,5 +1,12 @@
 (ns geoscript.core-test
-  (:use [geoscript.geometry] :reload-all)
+  (:use [geoscript.geometry :only(create-point
+                                  create-line-string
+                                  create-linear-ring
+                                  from-wkt)]
+        [geoscript.analysis :only(buffer
+                                  equals)]
+        [geoscript.io :only(read-shapefile)]
+        :reload-all)
   (:use [clojure.test]))
 
 (deftest point
@@ -11,12 +18,18 @@
   "com.vividsolutions.jts.geom.LineString")
 
 (deftest linear-ring
-  (create-linear-ring '( (0 0) (0 1) (1 1) (1 0) (0 0)  ) ))
-
-;;(deftest polygon
-;;  (is (class (create-polygon '((0 0) (0 1) (1 1) (1 0) (0 0)) ))
-;;      "com.vividsolutions.jts.geom.Polygon"))
+  (is (class (create-linear-ring '((0 0) (0 1) (1 1) (1 0) (0 0)) ))
+      "com.vividsolutions.jts.geom.LinearRing"))
 
 (deftest well-know-text
   (is (class (from-wkt "LINESTRING(10 34,23 45)"))
-      "com.vividsolutions.jts.geom.LineString"))
+     "com.vividsolutions.jts.geom.LineString"))
+
+(deftest test-buffer
+  (class (buffer (create-point 43 54)10)))
+
+(deftest test-equals
+  (equals (create-point 43 63.2)(create-point 39 32)))
+
+(deftest shapefile
+  (println (class (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp"))))
