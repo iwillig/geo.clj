@@ -10,24 +10,22 @@
   {:maxx (.getMaxX bound) :maxy (.getMaxY bound)
    :minx (.getMinX bound) :miny (.getMinY bound)})
 
-(defn buffer
-  [store]
-  (. store features))
-
 (defn get-features
   "FeatureCollection"
   [collection]
-  (seq (.toArray collection)))
+  (seq (.toArray (.(.(.getFeatureSource collection (first (.getNames collection))) getFeatures) collection))))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
-  (def shape (. DataStoreFinder getDataStore 
+  (. DataStoreFinder getDataStore 
            (doto (java.util.HashMap.)
              (.put "url" (.(File. path) toURL)))))
-  (.(.(.getFeatureSource shape (first (.getNames shape))) getFeatures) collection))
 
 
+(defn read-postgis
+  "takes a postgis"
+  [connection layer])
 
 
 (defn write-shapefile

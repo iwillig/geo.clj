@@ -1,11 +1,13 @@
-(ns geoscript.analysis)
+(ns geoscript.analysis
+  (:import [com.vividsolutions.jts.geom Geometry]))
 
 
-;; opertations on geometries
-(defn buffer
-  "creates a buffer"
-  [geometry distance]
-  (. geometry buffer distance))
+(defn buffer-dispatch [geom & args] (class geom))
+(defmulti buffer buffer-dispatch)
+(defmethod buffer com.vividsolutions.jts.geom.Geometry geom
+  [geom & args]
+  (.buffer geom (first args)))
+
 
 (defn equals
   "spatially equal to: a=b"
