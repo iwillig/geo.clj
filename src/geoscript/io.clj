@@ -13,7 +13,7 @@
 (defn get-features
   "FeatureCollection"
   [collection]
-  (seq (.toArray (.(.(.getFeatureSource collection (first (.getNames collection))) getFeatures) collection))))
+  (.(.(.getFeatureSource collection (first (.getNames collection))) getFeatures) collection))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
