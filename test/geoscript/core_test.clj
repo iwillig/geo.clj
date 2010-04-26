@@ -6,6 +6,7 @@
         [geoscript.analysis :only(buffer
                                   equals)]
         [geoscript.io :only(read-shapefile
+                            get-features
                             bounds)]
         :reload-all)
   (:use [clojure.test]))
@@ -34,3 +35,6 @@
 
 (deftest shapefile
   (println  (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))
+
+(deftest buffer-shapefile
+ (buffer (get-features (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp"))10))

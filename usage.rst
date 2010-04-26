@@ -5,6 +5,10 @@ usage
 ------
 #. programs should be short
    
+   (def quakes (create-features {:date String :count String :location Point}))
+   (add-feature quakes {:date 1/3/2010 :country "Haiti" :location
+   create-point 43 35})  
+
    (write-postgis (buffer (read-shapefile "path/to/shapefile.shp") 10 ))
 
 

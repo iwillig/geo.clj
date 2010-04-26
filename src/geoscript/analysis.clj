@@ -5,13 +5,14 @@
 (defn buffer-dispatch [collection & args] (class collection))
 
 (defmulti buffer buffer-dispatch)
+
 (defmethod buffer com.vividsolutions.jts.geom.Geometry collection
   [collection & args]
   (.buffer collection (first args)))
 
 (defmethod buffer org.geotools.feature.FeatureCollection collection
   [collection & args]
-  (class collection))
+  (map (fn [feature] (buffer (.getDefaultGeometry feature) (first args))) (.toArray collection)))
 
 (defn equals
   "spatially equal to: a=b"
