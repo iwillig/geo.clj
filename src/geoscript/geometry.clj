@@ -10,8 +10,6 @@
   [geometry]
   (. geometry isValid))
 
-
-
 (defn from-wkt
   "Creates a geometry from well known text" 
   [string]
@@ -22,33 +20,35 @@
   ([coord] (Coordinate. (first coord) (second coord)))
   ([x y](Coordinate. x y)))
 
-
 (defn create-point
   "Creates a JTS Point from a X Y"
   [x y]
-  (. factory createPoint (create-coord x y)))
-;;  { :x :y :geom (. factory createPoint (create-coord x y))} )
-
+  { :type "Point" :geometry (. factory createPoint (create-coord x y))})
 
 (defn create-line-string
   "Creates a JTS Linear ring"
-  [input]
-  (. factory createLineString (into-array (map create-coord input))))
-
-
+  [line]
+  {:type "LineString" :geometry
+   (. factory createLineString (into-array (map create-coord line)))})
 
 (defn create-linear-ring
   "Creates a JTS Linear ring"
   [ring]
-  (. factory createLinearRing (into-array (map create-coord ring))))
-
+  {:type "LinearRing" :geometry
+  (. factory createLinearRing (into-array (map create-coord ring)))})
 
 (defn create-polygon
   "Creates JTS Polygon"
-  ([shell, & holes]
-     (. factory createPolyon (create-linear-ring shell) (into-array holes))))
+  ([shell]
+  {:type "Polygon" :geometry
+  (. factory createPolygon ((create-linear-ring shell) :geometry) nil)})
+  ([shell & holes]
+     {:type "Polygon" :geometry
+      (. factory createPolygon ((create-linear-ring shell) :geometry)
+         (into-array (map (create-linear-ring :geometry)  holes)))}))
 
-(defn create-multi-point [])
+(defn create-multi-point  
+  [point-array])
 
 (defn create-multi-line-string [])
 

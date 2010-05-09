@@ -11,6 +11,26 @@ usage
 
    (write-postgis (buffer (read-shapefile "path/to/shapefile.shp") 10 ))
 
+#. This library is collection focused. Functions, the core of
+ geoscript.clj return feature collections in the form of hashmaps. For
+ example:: 
+  
+    read-shapefile("data/countries.shp") 
+
+Will return:: 
+
+    { 
+      :type: "FeatureCollection",
+      :features: [{ }{ }]   
+      :projection:
+      :meta: {} } 
+
+geometries should also follow this pattern 
+ { :type "POINT" :cords jts.geom.Point } 
+
+#. Feature collections should be light weight and follow GeoJSON's
+ already existing patterns. 
+
 
 geometry.clj
 ------------------

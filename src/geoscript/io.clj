@@ -11,13 +11,16 @@
   {:maxx (.getMaxX bound) :maxy (.getMaxY bound)
    :minx (.getMinX bound) :miny (.getMinY bound)})
 
-(defn get-feature
-  [collection name])
+(defn get-feature-type
+  [feature]
+  (.getFeatureType feature))
 
-(defn get-features
+(defn get-layer
   "FeatureCollection"
   [collection]
-  (.(.(.getFeatureSource collection (first (.getNames collection))) getFeatures) collection))
+  (seq (.toArray (.(.(.getFeatureSource
+                 collection (first (.getNames collection)))
+                getFeatures) collection))))
 
 
 (defn create-feature-type
