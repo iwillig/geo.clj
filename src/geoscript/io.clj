@@ -5,6 +5,13 @@
    [org.geotools.data DataStoreFinder]
    [org.geotools.data DataStore]))
 
+
+(defn dir
+  "utility function for print the methods of an object as strings"
+  [object]
+  (map (fn [x] (.getName x)) (.getDeclaredMethods (.getClass object))))
+
+
 (defn bounds
   [store]
   (def bound (. store getBounds ))
@@ -15,30 +22,29 @@
   [feature]
   (.getFeatureType feature))
 
+(defn get-properties
+  [feature]
+  (.getProperties feature)) 
+
 (defn get-layer
   "FeatureCollection"
-  [collection]
-  (seq (.toArray (.(.(.getFeatureSource
-                 collection (first (.getNames collection)))
-                getFeatures) collection))))
+  [shape]
+  (def feature (lazy-seq (.toArray (.(.(.getFeatureSource
+                 shape (first (.getNames shape)))
+                                       getFeatures) collection))))
+  {:properties (map get-properties feature)})
 
-
-(defn create-feature-type
-  "creates a FeatureType from a hashmap"
-  [name schema]
-  (SimpleFeatureBuilder. (org.geotools.data.DataUtilities/createType name schema)))
-
-(defn add-feature!
-  "add a feature to a feature-type"
-  [builder feature]
-  (.add builder feature))
+(defn get-schema
+  [store]
+  (.getSchema store))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
-  (. DataStoreFinder getDataStore 
+  (def data (. DataStoreFinder getDataStore 
            (doto (java.util.HashMap.)
              (.put "url" (.(File. path) toURL)))))
+  {:features (get-layer data)})
 
 
 (defn read-postgis

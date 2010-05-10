@@ -48,7 +48,7 @@
          (into-array (map (create-linear-ring :geometry)  holes)))}))
 
 (defn create-multi-point  
-  [point-array])
+  [points])
 
 (defn create-multi-line-string [])
 
