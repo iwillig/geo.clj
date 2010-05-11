@@ -1,7 +1,8 @@
 (ns geoscript.core
-  (:use geoscript.geometry))
+  (:gen-class)
+  (:use [geoscript.io :only(read-shapefile)]))
 
 (defn -main [ & agrs]
-  (createPoint 3 4 5 6))
-
+  (println (map #( % :properties)
+                ((read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp"):features))))
 

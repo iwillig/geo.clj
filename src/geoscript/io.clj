@@ -8,7 +8,7 @@
 
 (defn dir
   "utility function for print the methods of an object as strings"
-  [object]
+  [object
   (map (fn [x] (.getName x)) (.getDeclaredMethods (.getClass object))))
 
 

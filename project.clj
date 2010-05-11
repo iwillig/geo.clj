@@ -6,4 +6,5 @@
                  [org.geotools/gt-shapefile "2.7-SNAPSHOT"]
                  [org.clojure/clojure-contrib "1.1.0"]]
   :dev-dependencies [[swank-clojure "1.1.0"]]
-  :namespace [[geoscript.geometry][geoscript.io][geoscript.analysis]])
+  :main geoscript.core
+  :namespace [[geoscript.core]])

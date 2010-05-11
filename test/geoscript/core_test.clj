@@ -35,4 +35,4 @@
       "com.vividsolutions.jts.geom.Polygon"))
 
 (deftest shapefile
-  (println  (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))
+  (map #(.getCentroid (% :geometry)) (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))

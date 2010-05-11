@@ -1,4 +1,5 @@
 (ns geoscript.geometry
+  (:use [clojure.contrib.json.write :only (json-str print-json)])
   (:import [org.geotools.geometry.jts JTSFactoryFinder]
            [com.vividsolutions.jts.geom Coordinate])) 
 
@@ -10,10 +11,21 @@
   [geometry]
   (. geometry isValid))
 
+(defn geojson-str
+  [geometry]
+  (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates (geometry :geometry)))))
+
+;;(reduce (fn [map field] (assoc map (-> field .getDescriptor getLocalName keyword)
+;;                               (.getValue field)) (rest (.getProperties feature))))
+
+(defn read-geojson
+  [string]) 
+
 (defn from-wkt
   "Creates a geometry from well known text" 
   [string]
-  (. reader read (str string))) 
+  (def point (. reader read (str string))) 
+  {:type (.getGeometryType point) :geometry point})
 
 (defn create-coord
   "Creates a JTS Coordinate Seq"
