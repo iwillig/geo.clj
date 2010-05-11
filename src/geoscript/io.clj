@@ -22,18 +22,18 @@
   [feature]
   (.getFeatureType feature))
 
-(defn get-properties
+(defn make-properties
   [feature]
-  (.getProperties feature)) 
+  (map (fn [field] {(keyword (.getLocalName (.getDescriptor field))) (.getValue field)}) (rest (.getProperties feature))))
 
-(defn get-layer
+(defn make-features
   "FeatureCollection"
-  [shape]
-  (def feature (lazy-seq (.toArray (.(.(.getFeatureSource
+  [shape]  
+  (map (fn [feature] {:type "Feature" :properties (make-properties feature) :geometry (.getDefaultGeometry feature)})
+       (.toArray (.(.(.getFeatureSource
                  shape (first (.getNames shape)))
-                                       getFeatures) collection))))
-  {:properties (map get-properties feature)})
-
+                          getFeatures) collection))))
+  
 (defn get-schema
   [store]
   (.getSchema store))
@@ -41,10 +41,9 @@
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
-  (def data (. DataStoreFinder getDataStore 
+  {:type "FeatureCollection" :features (make-features (. DataStoreFinder getDataStore 
            (doto (java.util.HashMap.)
-             (.put "url" (.(File. path) toURL)))))
-  {:features (get-layer data)})
+             (.put "url" (.(File. path) toURL)))))})
 
 
 (defn read-postgis
