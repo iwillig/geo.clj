@@ -7,42 +7,35 @@
 
 
 (defn dir
-  "utility function for print the methods of an object as strings"
+  "utility function for printing the methods of an object as strings"
   [object]
   (map (fn [x] (.getName x)) (.getDeclaredMethods (.getClass object))))
 
 
-(defn bounds
-  [store]
-  (def bound (. store getBounds ))
-  {:maxx (.getMaxX bound) :maxy (.getMaxY bound)
-   :minx (.getMinX bound) :miny (.getMinY bound)})
+(defn make-feature
+     "make-feature takes a geoscript clojure hashmap and
+     produces a geotools feature, maybe
+     feature TYPE"
+     [map])
 
-(defn get-feature-type
-  [feature]
-  (.getFeatureType feature))
-
-(defn make-properties
+(defn read-properties
   [feature]
   (reduce (fn [map field] (assoc map (-> field .getDescriptor .getLocalName keyword)
-                               (.getValue field))) {}(rest (.getProperties feature))) )
+                               (.getValue field))) {} (rest (.getProperties feature))))
 
-(defn make-features
+(defn read-features
   "FeatureCollection"
   [shape]  
-  (map (fn [feature] {:type "Feature" :properties (make-properties feature) :geometry (.getDefaultGeometry feature)})
+  (map (fn [feature] {:type "Feature" :properties (read-properties feature) :geometry (.getDefaultGeometry feature)})
        (.toArray (.(.(.getFeatureSource
                  shape (first (.getNames shape)))
                           getFeatures) collection))))
   
-(defn get-schema
-  [store]
-  (.getSchema store))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
-  {:type "FeatureCollection" :features (make-features (. DataStoreFinder getDataStore 
+  {:type "FeatureCollection" :features (read-features (. DataStoreFinder getDataStore 
            (doto (java.util.HashMap.)
              (.put "url" (.(File. path) toURL)))))})
 
