@@ -8,7 +8,7 @@
 
 (defn dir
   "utility function for print the methods of an object as strings"
-  [object
+  [object]
   (map (fn [x] (.getName x)) (.getDeclaredMethods (.getClass object))))
 
 
@@ -24,7 +24,8 @@
 
 (defn make-properties
   [feature]
-  (map (fn [field] {(keyword (.getLocalName (.getDescriptor field))) (.getValue field)}) (rest (.getProperties feature))))
+  (reduce (fn [map field] (assoc map (-> field .getDescriptor .getLocalName keyword)
+                               (.getValue field))) {}(rest (.getProperties feature))) )
 
 (defn make-features
   "FeatureCollection"
