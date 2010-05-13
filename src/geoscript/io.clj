@@ -42,12 +42,20 @@
     (.getSchema datastore (first type-name))
     (.getSchema datastore)))
 
+(defn get-projection
+  ;; hack why can't we get the projection
+  ;; from the feature collection
+  [datastore]
+  (.crs (.getBounds (.getFeatureSource datastore))))
+
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
+  (def storedata (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)})) 
   {:type "FeatureCollection"
-   :features (read-features
-              (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)}))})
+   :features (read-features storedata)
+   :projection (get-projection storedata)})
+              
 
 (defn read-postgis
   "takes a postgis"
