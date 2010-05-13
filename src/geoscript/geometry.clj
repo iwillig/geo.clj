@@ -1,6 +1,7 @@
 (ns geoscript.geometry
   (:use [clojure.contrib.json.write :only (json-str print-json)])
-  (:import [org.geotools.geometry.jts JTSFactoryFinder]
+  (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
+           [org.geotools.referencing CRS]
            [com.vividsolutions.jts.geom Coordinate])) 
 
 (def factory (JTSFactoryFinder/getGeometryFactory nil))
@@ -10,6 +11,10 @@
   "checks the vaildity of a geometry"
   [geometry]
   (. geometry isValid))
+
+(defn transform
+  [geometry input-epsg output-epsg]
+  (. JTS transform (geometry :geometry) (. CRS findMathTransform  (. CRS decode input-epsg) (. CRS decode output-epsg))))
 
 (defn geojson-str
   [geometry]

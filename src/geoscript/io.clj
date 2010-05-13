@@ -13,11 +13,7 @@
   [object]
   (map #(.getName %) (.getMethods (class object))))
 
-
 (defn make-feature
-     "make-feature takes a geoscript clojure hashmap and
-     produces a geotools feature, maybe
-     feature TYPE"
      [map])
 
 (defn read-properties
