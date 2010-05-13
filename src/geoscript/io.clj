@@ -25,20 +25,19 @@
 
 (defn read-features
   "FeatureCollection"
-  [shape]  
+  [datastore]
   (map (fn [feature] {:type "Feature" :properties (read-properties feature) :geometry (.getDefaultGeometry feature)})
-       (.toArray (.(.(.getFeatureSource
-                 shape (first (.getNames shape)))
-                          getFeatures) collection))))
-  
+       ;; for shape file only
+       (let [feature-source (.getFeatureSource datastore)
+             features (.getFeatures feature-source)]
+         (iterator-seq (.iterator features)))))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
-  {:type "FeatureCollection" :features (read-features (. DataStoreFinder getDataStore 
-           (doto (java.util.HashMap.)
-             (.put "url" (.(File. path) toURL)))))})
-
+  {:type "FeatureCollection"
+   :features (read-features
+              (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)}))})
 
 (defn read-postgis
   "takes a postgis"
