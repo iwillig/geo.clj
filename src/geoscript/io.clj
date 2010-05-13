@@ -33,7 +33,9 @@
 (defn read-features
   "FeatureCollection"
   [datastore & type-name]
-  (map (fn [feature] {:type "Feature" :properties (read-properties feature) :geometry (.getDefaultGeometry feature)})
+  (map (fn [feature] {:type "Feature"
+                      :properties (read-properties feature)
+                      :geometry (.getDefaultGeometry feature)})
        (let [feature-source (if type-name
                               (.getFeatureSource datastore (first type-name))
                               (.getFeatureSource datastore))]
