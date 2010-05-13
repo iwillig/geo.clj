@@ -41,6 +41,11 @@
                               (.getFeatureSource datastore))]
          (iterator-seq (.. feature-source getFeatures iterator)))))
 
+(defn get-feature-type [datastore & type-name]
+  (if type-name
+    (.getSchema datastore (first type-name))
+    (.getSchema datastore)))
+
 (defn read-shapefile
   "Reads and loads a shapefile"  
   [path]
