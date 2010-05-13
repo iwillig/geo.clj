@@ -1,4 +1,6 @@
 (ns geoscript.io
+  (:use
+   [clojure.contrib.seq-utils :only (seq-on)])
   (:import
    [java.io File]
    [org.geotools.feature.simple SimpleFeatureBuilder]
@@ -20,17 +22,22 @@
 
 (defn read-properties
   [feature]
-  (reduce (fn [map field] (assoc map (-> field .getDescriptor .getLocalName keyword)
-                               (.getValue field))) {} (rest (.getProperties feature))))
+  (let [nongeom-properties (filter #(not (-> % .getValue class (isa? com.vividsolutions.jts.geom.Geometry)))
+                                   (.getProperties feature))]
+    (reduce (fn [map field] (assoc map (-> field .getDescriptor .getLocalName keyword)
+                                   (.getValue field))) {} nongeom-properties)))
+
+(defmethod seq-on com.vividsolutions.jts.geom.MultiLineString [multi-line-string]
+  (map #(vector (.x %) (.y %)) (.getCoordinates multi-line-string)))
 
 (defn read-features
   "FeatureCollection"
-  [datastore]
+  [datastore & type-name]
   (map (fn [feature] {:type "Feature" :properties (read-properties feature) :geometry (.getDefaultGeometry feature)})
-       ;; for shape file only
-       (let [feature-source (.getFeatureSource datastore)
-             features (.getFeatures feature-source)]
-         (iterator-seq (.iterator features)))))
+       (let [feature-source (if type-name
+                              (.getFeatureSource datastore (first type-name))
+                              (.getFeatureSource datastore))]
+         (iterator-seq (.. feature-source getFeatures iterator)))))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
