@@ -43,10 +43,8 @@
     (.getSchema datastore)))
 
 (defn get-projection
-  ;; hack why can't we get the projection
-  ;; from the feature collection
   [datastore]
-  (.crs (.getBounds (.getFeatureSource datastore))))
+  (.. datastore getFeatureSource getBounds crs))
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
