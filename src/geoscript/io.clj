@@ -9,7 +9,7 @@
 (defn dir
   "utility function for printing the methods of an object as strings"
   [object]
-  (map (fn [x] (.getName x)) (.getDeclaredMethods (.getClass object))))
+  (map (fn [x] (.getName x)) (.getMethods (.getClass object))))
 
 
 (defn make-feature
