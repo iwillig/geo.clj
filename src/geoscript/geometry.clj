@@ -15,9 +15,6 @@
   [geometry]
   (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates (geometry :geometry)))))
 
-;;(reduce (fn [map field] (assoc map (-> field .getDescriptor getLocalName keyword)
-;;                               (.getValue field)) (rest (.getProperties feature))))
-
 (defn read-geojson
   [string]) 
 
