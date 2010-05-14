@@ -4,9 +4,8 @@
   (:import
    [java.io File]
    [org.geotools.feature.simple SimpleFeatureBuilder]
-   [org.geotools.data DataStoreFinder]
-   [org.geotools.data DataStore]))
-
+   [org.geotools.data.memory MemoryFeatureCollection]
+   [org.geotools.data DataStoreFinder DataStore]))
 
 (defn dir
   "utility function for printing the methods of an object as strings"
@@ -26,12 +25,37 @@
 (defmethod seq-on com.vividsolutions.jts.geom.MultiLineString [multi-line-string]
   (map #(vector (.x %) (.y %)) (.getCoordinates multi-line-string)))
 
+(defn geotoolsfeature->feature [feature]
+ {:type "Feature"
+  :id (.getID feature)
+  :properties (read-properties feature)
+  :geometry (.getDefaultGeometry feature)})
+
+(defn make-feature-collection [feature-type features]
+  (let [feature-builder (SimpleFeatureBuilder. feature-type)
+        memory-feature-collection (MemoryFeatureCollection. feature-type)]
+    (doseq [feature features]
+      (doseq [prop-keyval (:properties feature)]
+        (.set feature-builder (name (key prop-keyval)) (val prop-keyval))
+        ;; hard coded geom
+        (.set feature-builder "geom" (:geometry feature))
+        (.add memory-feature-collection
+              (.buildFeature feature-builder (:id feature)))))
+    memory-feature-collection))
+
+(defn feature->geotoolsfeature [feature feature-type]
+  (let [props (:properties feature)
+        feature-builder (SimpleFeatureBuilder. feature-type)]
+    (doseq [prop-keyval (:properties feature)]
+      (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
+    ;; hard coded geom
+    (.set feature-builder "geom" (:geometry feature))
+    (.buildFeature feature-builder (:id feature))))
+
 (defn read-features
   "FeatureCollection"
   [datastore & type-name]
-  (map (fn [feature] {:type "Feature"
-                      :properties (read-properties feature)
-                      :geometry (.getDefaultGeometry feature)})
+  (map geotoolsfeature->feature
        (let [feature-source (if type-name
                               (.getFeatureSource datastore (first type-name))
                               (.getFeatureSource datastore))]
@@ -57,7 +81,9 @@
 
 (defn read-postgis
   "takes a postgis"
-  [connection layer])
+  [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
+  (let [datastore (DataStoreFinder/getDataStore connection-info)]
+    (read-features datastore table-name)))
 
 
 (defn write-shapefile
