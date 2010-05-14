@@ -36,11 +36,11 @@
         memory-feature-collection (MemoryFeatureCollection. feature-type)]
     (doseq [feature features]
       (doseq [prop-keyval (:properties feature)]
-        (.set feature-builder (name (key prop-keyval)) (val prop-keyval))
-        ;; hard coded geom
-        (.set feature-builder "geom" (:geometry feature))
-        (.add memory-feature-collection
-              (.buildFeature feature-builder (:id feature)))))
+        (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
+      ;; hard coded geom
+      (.set feature-builder "geom" (:geometry feature))
+      (.add memory-feature-collection
+            (.buildFeature feature-builder (:id feature))))
     memory-feature-collection))
 
 (defn feature->geotoolsfeature [feature feature-type]
