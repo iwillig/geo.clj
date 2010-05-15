@@ -85,6 +85,10 @@
   (let [datastore (DataStoreFinder/getDataStore connection-info)]
     (read-features datastore table-name)))
 
+(defn make-datastore
+  "convenience wrapper function to create a datastore from a mapping"
+  [connection-info]
+  (DataStoreFinder/getDataStore connection-info))
 
 (defn write-shapefile
   "Takes a feature collection and writes it to a shapefile"
