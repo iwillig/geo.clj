@@ -16,9 +16,6 @@
   `(clojure.lang.Reflector/invokeInstanceMethod
     ~instance (name (quote ~method)) (to-array ~args)))
 
-(defn make-feature
-     [map])
-
 (defn read-properties
   [feature]
   (let [nongeom-properties (filter #(not (-> % .getValue class (isa? com.vividsolutions.jts.geom.Geometry)))
@@ -35,6 +32,15 @@
   :properties (read-properties feature)
   :geometry (.getDefaultGeometry feature)})
 
+(defn feature->geotoolsfeature [feature feature-type]
+  (let [props (:properties feature)
+        feature-builder (SimpleFeatureBuilder. feature-type)]
+    (doseq [prop-keyval (:properties feature)]
+      (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
+    ;; hard coded geom
+    (.set feature-builder "geom" (:geometry feature))
+    (.buildFeature feature-builder (:id feature))))
+
 (defn make-feature-collection [feature-type features]
   (let [feature-builder (SimpleFeatureBuilder. feature-type)
         memory-feature-collection (MemoryFeatureCollection. feature-type)]
@@ -46,15 +52,6 @@
       (.add memory-feature-collection
             (.buildFeature feature-builder (:id feature))))
     memory-feature-collection))
-
-(defn feature->geotoolsfeature [feature feature-type]
-  (let [props (:properties feature)
-        feature-builder (SimpleFeatureBuilder. feature-type)]
-    (doseq [prop-keyval (:properties feature)]
-      (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-    ;; hard coded geom
-    (.set feature-builder "geom" (:geometry feature))
-    (.buildFeature feature-builder (:id feature))))
 
 (defn read-features
   "FeatureCollection"
