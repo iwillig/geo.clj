@@ -64,8 +64,9 @@
   (java-apply datastore getSchema type-name))
 
 (defn get-projection
-  [datastore]
-  (.. datastore getFeatureSource getBounds crs))
+  [datastore & type-name]
+  (.. (java-apply datastore getFeatureSource type-name) getBounds crs))
+
 
 (defn read-shapefile
   "Reads and loads a shapefile"  
