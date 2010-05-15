@@ -4,8 +4,8 @@
            [org.geotools.referencing CRS]
            [com.vividsolutions.jts.geom Coordinate])) 
 
-(def factory (JTSFactoryFinder/getGeometryFactory nil))
-(def reader (com.vividsolutions.jts.io.WKTReader. factory))
+(def *factory* (JTSFactoryFinder/getGeometryFactory nil))
+(def *reader* (com.vividsolutions.jts.io.WKTReader. *factory*))
 
 (defn valid?
   "checks the vaildity of a geometry"
@@ -26,7 +26,7 @@
 (defn from-wkt
   "Creates a geometry from well known text" 
   [string]
-  (def point (. reader read (str string))) 
+  (def point (. *reader* read (str string))) 
   {:type (.getGeometryType point) :geometry point})
 
 (defn create-coord
@@ -37,28 +37,28 @@
 (defn create-point
   "Creates a JTS Point from a X Y"
   [x y]
-  { :type "Point" :geometry (. factory createPoint (create-coord x y))})
+  { :type "Point" :geometry (. *factory* createPoint (create-coord x y))})
 
 (defn create-line-string
   "Creates a JTS Linear ring"
   [line]
   {:type "LineString" :geometry
-   (. factory createLineString (into-array (map create-coord line)))})
+   (. *factory* createLineString (into-array (map create-coord line)))})
 
 (defn create-linear-ring
   "Creates a JTS Linear ring"
   [ring]
   {:type "LinearRing" :geometry
-  (. factory createLinearRing (into-array (map create-coord ring)))})
+  (. *factory* createLinearRing (into-array (map create-coord ring)))})
 
 (defn create-polygon
   "Creates JTS Polygon"
   ([shell]
   {:type "Polygon" :geometry
-  (. factory createPolygon ((create-linear-ring shell) :geometry) nil)})
+  (. *factory* createPolygon ((create-linear-ring shell) :geometry) nil)})
   ([shell & holes]
      {:type "Polygon" :geometry
-      (. factory createPolygon ((create-linear-ring shell) :geometry)
+      (. *factory* createPolygon ((create-linear-ring shell) :geometry)
          (into-array (map (create-linear-ring :geometry)  holes)))}))
 
 (defn create-multi-point  
