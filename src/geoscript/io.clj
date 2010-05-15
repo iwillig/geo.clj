@@ -12,6 +12,10 @@
   [object]
   (map #(.getName %) (.getMethods (class object))))
 
+(defmacro java-apply [instance method args]
+  `(clojure.lang.Reflector/invokeInstanceMethod
+    ~instance (name (quote ~method)) (to-array ~args)))
+
 (defn make-feature
      [map])
 
@@ -56,15 +60,11 @@
   "FeatureCollection"
   [datastore & type-name]
   (map geotoolsfeature->feature
-       (let [feature-source (if type-name
-                              (.getFeatureSource datastore (first type-name))
-                              (.getFeatureSource datastore))]
+       (let [feature-source (java-apply datastore getFeatureSource type-name)]
          (iterator-seq (.. feature-source getFeatures iterator)))))
 
 (defn get-feature-type [datastore & type-name]
-  (if type-name
-    (.getSchema datastore (first type-name))
-    (.getSchema datastore)))
+  (java-apply datastore getSchema type-name))
 
 (defn get-projection
   [datastore]
