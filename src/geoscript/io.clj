@@ -67,26 +67,26 @@
   [datastore & type-name]
   (.. (java-apply datastore getFeatureSource type-name) getBounds crs))
 
-
-(defn read-shapefile
-  "Reads and loads a shapefile"  
-  [path]
-  (def storedata (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)})) 
-  {:type "FeatureCollection"
-   :features (read-features storedata)
-   :projection (get-projection storedata)})
-              
-
-(defn read-postgis
-  "takes a postgis"
-  [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
-  (let [datastore (DataStoreFinder/getDataStore connection-info)]
-    (read-features datastore table-name)))
-
 (defn make-datastore
   "convenience wrapper function to create a datastore from a mapping"
   [connection-info]
   (DataStoreFinder/getDataStore connection-info))
+
+(defn read-shapefile
+  "Reads and loads a shapefile"
+  [path]
+  (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
+    {:type "FeatureCollection"
+     :features (read-features datastore)
+     :projection (get-projection datastore)}))
+
+(defn read-postgis
+  "takes a postgis"
+  [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
+  (let [datastore (make-datastore connection-info)]
+    {:type "FeatureCollection"
+     :features (read-features datastore table-name)
+     :projection (get-projection datastore table-name)}))
 
 (defn write-shapefile
   "Takes a feature collection and writes it to a shapefile"
