@@ -20,8 +20,8 @@
   [feature]
   (let [nongeom-properties (filter #(not (-> % .getValue class (isa? com.vividsolutions.jts.geom.Geometry)))
                                    (.getProperties feature))]
-    (reduce (fn [map field] (assoc map (-> field .getDescriptor .getLocalName keyword)
-                                   (.getValue field))) {} nongeom-properties)))
+    (reduce (fn [hashmap field] (assoc hashmap (-> field .getDescriptor .getLocalName keyword)
+                                       (.getValue field))) {} nongeom-properties)))
 
 (defmethod seq-on com.vividsolutions.jts.geom.MultiLineString [multi-line-string]
   (map #(vector (.x %) (.y %)) (.getCoordinates multi-line-string)))
