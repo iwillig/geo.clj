@@ -88,6 +88,22 @@
      :features (read-features datastore table-name)
      :projection (get-projection datastore table-name)}))
 
+(defn write-features
+  "write a feature collection to a data store"
+  [feature-collection datastore & type-name]
+  (let [feature-source (java-apply datastore getFeatureSource type-name)]
+    (.addFeatures feature-source feature-collection)))
+
+;; writing to shapefile doesn't really work
+;; it needs an existing shape file and it doesn't seem to currently complete
 (defn write-shapefile
-  "Takes a feature collection and writes it to a shapefile"
-  [features name])
+  "Takes a feature collection and writes it to an shapefile"
+  [feature-collection path]
+  (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
+    (write-features feature-collection datastore)))
+
+(defn write-postgis
+  "takes a feature collections and writes it to an existing postgis table. returns the number of features added"
+  [feature-collection connection-info table-name]
+  (let [datastore (make-datastore connection-info)]
+    (.size (write-features feature-collection datastore table-name))))
