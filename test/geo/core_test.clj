@@ -1,13 +1,12 @@
-(ns geoscript.core-test
-  (:use [geoscript.geometry :only(create-point
+(ns geo.core-test
+  (:use [geo.geometry :only(create-point
                                   create-polygon
                                   create-line-string
                                   create-linear-ring
                                   from-wkt)]
-        [geoscript.analysis :only(buffer
+        [geo.analysis :only(buffer
                                   equals)]
-        [geoscript.io :only(read-shapefile
-                            bounds)]
+        [geo.io :only(read-shapefile)]
         :reload-all)
   (:use [clojure.test]))
 
@@ -31,8 +30,9 @@
   (equals (create-point 43 63.2)(create-point 39 32)))
 
 (deftest test-polygon
-  (is (class ((create-polygon '((0 0) (0 1) (1 1) (1 0) (0 0))) :geometry))
+  (is (class (create-polygon '((0 0) (0 1) (1 1) (1 0) (0 0))))
       "com.vividsolutions.jts.geom.Polygon"))
 
-(deftest shapefile
-  (map #(.getCentroid (% :geometry)) (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))
+;;(deftest shapefile
+;;  (map #(.getCentroid (% :geometry)) (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))
+
