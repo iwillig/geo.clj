@@ -1,7 +1,13 @@
 (ns geo.proj
   (:import
    [org.geotools.geometry.jts JTS]
-   [org.geotools.referencing CRS]))
+   [org.geotools.referencing CRS ReferencingFactoryFinder]))
+
+(def *crsfactory* (ReferencingFactoryFinder/getCRSFactory nil))
+
+(defn proj-from-wkt
+  [wkt]
+  (. *crsfactory* createFromWKT  wkt))
 
 (defn get-proj
   [epsg]
