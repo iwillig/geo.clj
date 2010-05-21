@@ -12,10 +12,17 @@
   [geometry]
   (. geometry isValid))
 
+(defn union
+  [geom plusgeom]
+  (.union geom plusgeom))
+
+(defn get-coords
+  [geometry]
+  (seq (.getCoordinates geometry)))
 
 (defn geojson-str
   [geometry]
-  (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates (geometry :geometry)))))
+  (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates geometry))))
 
 (defn read-geojson
   [string]) 
@@ -33,8 +40,9 @@
 
 (defn create-point
   "Creates a JTS Point from a X Y"
-  [x y]
-  (.createPoint *factory* (create-coord x y)))
+  ([p] (apply create-point p))
+  ([x y] (.createPoint *factory* (create-coord x y)))
+  ([x y z] (.createPoint *factory* (create-coord x y z))))
 
 (defn create-line-string
   "Creates a JTS Linear ring"
