@@ -12,9 +12,6 @@
   [geometry]
   (. geometry isValid))
 
-(defn transform
-  [geometry input-epsg output-epsg]
-  (. JTS transform (geometry :geometry) (. CRS findMathTransform  (. CRS decode input-epsg) (. CRS decode output-epsg))))
 
 (defn geojson-str
   [geometry]

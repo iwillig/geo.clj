@@ -2,6 +2,7 @@
   :description "a library for dealing with geotools in clojure"
   :repositories { "OpenGeo Maven Repository" "http://repo.opengeo.org/"}  
   :dependencies [[org.clojure/clojure "1.1.0"]
+                 [lein-run "1.0.0-SNAPSHOT"]
                  [org.geotools/gt-main "2.7-SNAPSHOT"]
                  [org.geotools/gt-swing "2.7-SNAPSHOT"]
                  [org.geotools/gt-epsg-hsql "2.7-SNAPSHOT"]
