@@ -8,11 +8,6 @@
    [org.geotools.data.memory MemoryFeatureCollection]
    [org.geotools.data DataStoreFinder DataStore]))
 
-(defn dir
-  "utility function for printing the methods of an object as strings"
-  [object]
-  (map #(.getName %) (.getMethods (class object))))
-
 (defn read-properties
   [feature]
   (let [nongeom-properties (filter #(not (-> % .getValue class (isa? com.vividsolutions.jts.geom.Geometry)))
