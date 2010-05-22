@@ -1,6 +1,6 @@
 (ns geo.io
   (:use
-   [clojure.contrib.seq-utils :only (seq-on)]
+   [geo.seq]
    [geo.utils :only (java-apply)])
   (:import
    [java.io File]
@@ -14,9 +14,6 @@
                                    (.getProperties feature))]
     (reduce (fn [hashmap field] (assoc hashmap (-> field .getDescriptor .getLocalName keyword)
                                        (.getValue field))) {} nongeom-properties)))
-
-(defmethod seq-on com.vividsolutions.jts.geom.MultiLineString [multi-line-string]
-  (map #(vector (.x %) (.y %)) (.getCoordinates multi-line-string)))
 
 (defn geotoolsfeature->feature [feature]
  {:type "Feature"
