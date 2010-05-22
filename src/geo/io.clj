@@ -1,6 +1,7 @@
 (ns geo.io
   (:use
-   [clojure.contrib.seq-utils :only (seq-on)])
+   [clojure.contrib.seq-utils :only (seq-on)]
+   [geo.utils :only (java-apply)])
   (:import
    [java.io File]
    [org.geotools.feature.simple SimpleFeatureBuilder]
@@ -11,10 +12,6 @@
   "utility function for printing the methods of an object as strings"
   [object]
   (map #(.getName %) (.getMethods (class object))))
-
-(defmacro java-apply [instance method args]
-  `(clojure.lang.Reflector/invokeInstanceMethod
-    ~instance (name (quote ~method)) (to-array ~args)))
 
 (defn read-properties
   [feature]
