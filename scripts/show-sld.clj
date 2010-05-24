@@ -1,4 +1,4 @@
-(ns sld-sandbox
+(ns sld-render
   (:use geo.io geo.render))
 
 (defn -main [& args]
@@ -7,5 +7,6 @@
   (def store (make-datastore shape-con))
   (def collection (.getFeatureSource store (first (.getTypeNames store))))
   (def path "/Users/ivanwillig/dev/geo.clj/data/sample.sld")
-  (swing collection path))
+  (defn show []
+  (swing collection path)))
 
