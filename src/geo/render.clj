@@ -20,11 +20,11 @@
     (.setTitle "Default Map")
     (.addLayer feature-collection (make-style sld))))
 
-(defn swing [feature-collection sld]
+(defn swing [feature-collection]
   (doto (JMapFrame.
    (doto (DefaultMapContext.)
      (.setTitle "Swing!!!!!!!!!!!")
-     (.addLayer feature-collection (make-style sld))))
+     (.addLayer feature-collection nil)))
     (.setDefaultCloseOperation (JFrame/DISPOSE_ON_CLOSE))
     (.setSize 800 600)
     (.enableStatusBar true)
