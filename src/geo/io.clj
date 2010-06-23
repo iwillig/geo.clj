@@ -26,7 +26,6 @@
         feature-builder (SimpleFeatureBuilder. feature-type)]
     (doseq [prop-keyval (:properties feature)]
       (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-    ;; hard coded geom
     (.set feature-builder  (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
     (.buildFeature feature-builder (:id feature))))
 
@@ -36,7 +35,6 @@
     (doseq [feature features]
       (doseq [prop-keyval (:properties feature)]
         (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-      ;; hard coded geom
       (.set feature-builder (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
       (.add memory-feature-collection
             (.buildFeature feature-builder (:id feature))))
