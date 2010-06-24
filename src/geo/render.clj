@@ -5,7 +5,12 @@
            [org.geotools.styling SLDParser]
            [org.geotools.factory CommonFactoryFinder]
            [javax.swing JFrame]
+           [java.io File]
+           [org.geotools.renderer.lite StreamingRenderer]
+           [java.awt Rectangle]
+           [java.awt.image BufferedImage] 
            [org.geotools.swing JMapFrame]))
+
 
 (def *style-factory*  (CommonFactoryFinder/getStyleFactory nil))
 
@@ -36,7 +41,15 @@
       (.enableToolBar true)
       (.setVisible true)))
 
-(defn render-image
+
+(defn write-image
   "renders a images"
-  [feature-collection sld]
-  (make-mapcontext feature-collection sld))
+  [imageout feature-collection & frameoptions]
+  (let [image (BufferedImage. 500 500 BufferedImage/TYPE_INT_ARGB)
+        graphics (.createGraphics image)
+        screen-area (Rectangle. 0 0 500 500)
+        map-area (.getBounds feature-collection)]
+    (doto (StreamingRenderer.)
+      (.setContext (apply make-mapcontext feature-collection frameoptions))
+      (.paint graphics screen-area map-area))
+    (ImageIO/write image "png" (File. imageout))))

@@ -13,5 +13,5 @@
                  [org.clojure/clojure-contrib "1.1.0"]]
   :dev-dependencies [[swank-clojure "1.1.0"]
                      [lein-run "1.0.0-SNAPSHOT"]]
-  :main geo.geometry
-  :namespace [[geo.geometry]])
+  :main geo.core
+  :namespace [[geo.core geo.render geo.io]])

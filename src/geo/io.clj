@@ -59,7 +59,7 @@
   [connection-info]
   (DataStoreFinder/getDataStore connection-info))
 
-(defn read-shapefile
+(defn read-shp
   "Reads and loads a shapefile"
   [path]
   (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
@@ -67,7 +67,7 @@
      :features (read-features datastore)
      :projection (get-projection datastore)}))
 
-(defn read-postgis
+(defn read-pg
   "takes a postgis"
   [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
   (let [datastore (make-datastore connection-info)]
@@ -83,13 +83,13 @@
 
 ;; writing to shapefile doesn't really work
 ;; it needs an existing shape file and it doesn't seem to currently complete
-(defn write-shapefile
+(defn write-shp
   "Takes a feature collection and writes it to an shapefile"
   [feature-collection path]
   (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
     (write-features feature-collection datastore)))
 
-(defn write-postgis
+(defn write-pg
   "takes a feature collections and writes it to an existing postgis table. returns the number of features added"
   [feature-collection connection-info table-name]
   (let [datastore (make-datastore connection-info)]
