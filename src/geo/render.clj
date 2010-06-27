@@ -1,23 +1,16 @@
 (ns geo.render
   (:import [org.geotools.data FeatureSource]
            [javax.imageio ImageIO]
-           [org.geotools.map DefaultMapContext MapContext]
-           [org.geotools.styling SLDParser]
-           [org.geotools.factory CommonFactoryFinder]
+           [org.geotools.map DefaultMapContext MapContext GraphicEnhancedMapContext]
+           [org.geotools.data Query]
            [javax.swing JFrame]
            [java.io File]
+           [java.awt Color RenderingHints]
            [org.geotools.renderer.lite StreamingRenderer]
            [java.awt Rectangle]
            [java.awt.image BufferedImage] 
            [org.geotools.swing JMapFrame]))
 
-
-(def *style-factory*  (CommonFactoryFinder/getStyleFactory nil))
-
-(defn make-style
-  [path]
-  (first
-   (.readXML (SLDParser. *style-factory* (-> path java.io.File. .toURL)))))
 
 (defn make-mapcontext
   "builds a DefaultMapContext
@@ -26,8 +19,10 @@
       :style geotools-style-object"
   [feature-collection & mapoptions]
   (let [options (apply hash-map mapoptions)]
-    (doto (DefaultMapContext.)
+    (doto (GraphicEnhancedMapContext.)
       (.setTitle (or (:title options) "Default Map"))
+      (.setBgColor Color/white)
+      (.setTransparent false)
       (.addLayer feature-collection (:style options)))))
 
 (defn swing
@@ -45,11 +40,12 @@
 (defn write-image
   "renders a images"
   [imageout feature-collection & frameoptions]
-  (let [image (BufferedImage. 500 500 BufferedImage/TYPE_INT_ARGB)
+  (let [image (BufferedImage. 800 600 BufferedImage/TYPE_INT_ARGB)
         graphics (.createGraphics image)
-        screen-area (Rectangle. 0 0 500 500)
-        map-area (.getBounds feature-collection)]
+        screen-area (Rectangle. 0 0 800 600)
+        map-area (.getBounds feature-collection Query/ALL)]
     (doto (StreamingRenderer.)
+      (.setJava2DHints (RenderingHints. RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))       
       (.setContext (apply make-mapcontext feature-collection frameoptions))
       (.paint graphics screen-area map-area))
     (ImageIO/write image "png" (File. imageout))))

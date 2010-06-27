@@ -8,5 +8,7 @@
                   "user" "postgres" "passwd" "password"}) 
 
 
-(defn -main [& args] 
-  (write-image "newyork.png" (.getFeatureSource (DataStoreFinder/getDataStore *conn-info*) "planet_osm_point" )))
+(defn show-map [& args]
+  (def path "/Users/ivanwillig/Data/OSM/Shapes/osm_line.shp")
+  (def data (make-datastore {"url" (-> path java.io.File. .toURL)}))
+  (write-image "osm_line.png" (.getFeatureSource data)))

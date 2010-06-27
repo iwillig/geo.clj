@@ -5,6 +5,8 @@
   (:import
    [java.io File]
    [org.geotools.feature.simple SimpleFeatureBuilder]
+   [org.geotools.factory CommonFactoryFinder]
+   [org.geotools.styling SLDParser]
    [org.geotools.data.memory MemoryFeatureCollection]
    [org.geotools.data DataStoreFinder DataStore]))
 
@@ -15,6 +17,13 @@
     (reduce (fn [hashmap field] (assoc hashmap (-> field .getDescriptor .getLocalName keyword)
                                        (.getValue field))) {} nongeom-properties)))
 
+(def *style-factory*  (CommonFactoryFinder/getStyleFactory nil))
+
+(defn read-sld
+  [path]
+  (first
+   (.readXML (SLDParser. *style-factory* (-> path java.io.File. .toURL)))))
+  
 (defn geotoolsfeature->feature [feature]
  {:type "Feature"
   :id (.getID feature)
