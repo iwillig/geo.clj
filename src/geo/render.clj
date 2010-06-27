@@ -14,7 +14,7 @@
 
 (def *style-factory*  (CommonFactoryFinder/getStyleFactory nil))
 
-(defn make-style
+(defn read-sld
   [path]
   (first
    (.readXML (SLDParser. *style-factory* (-> path java.io.File. .toURL)))))
@@ -45,9 +45,9 @@
 (defn write-image
   "renders a images"
   [imageout feature-collection & frameoptions]
-  (let [image (BufferedImage. 500 500 BufferedImage/TYPE_INT_ARGB)
+  (let [image (BufferedImage. 800 600 BufferedImage/TYPE_INT_ARGB)
         graphics (.createGraphics image)
-        screen-area (Rectangle. 0 0 500 500)
+        screen-area (Rectangle. 0 0 800 600)
         map-area (.getBounds feature-collection)]
     (doto (StreamingRenderer.)
       (.setContext (apply make-mapcontext feature-collection frameoptions))
