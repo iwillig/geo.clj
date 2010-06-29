@@ -63,8 +63,13 @@
       (and holes (into-array (map create-linear-ring holes))))))
 
 (defn create-multi-point
-  [points])
+  [points]
+  (.createMultiPoint *factory* (into-array (map #(create-point (first %) (second %)) points))))
 
-(defn create-multi-line-string [])
+(defn create-multi-line-string
+  [lines]
+  (.createMultiLineString *factory* (into-array (map #(create-line-string %) lines ))))
 
-(defn create-multi-polygon[])
+(defn create-multi-polygon
+  [polygons]
+  (.createMultiPolygon *factory* (into-array (map #(create-polygon %) polygons))))

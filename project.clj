@@ -6,7 +6,7 @@
                  [org.geotools/gt-swing "2.7-SNAPSHOT"]
                  [org.geotools/gt-epsg-hsql "2.7-SNAPSHOT"]
                  [org.geotools/gt-referencing "2.7-SNAPSHOT"]
-                 [org.geotools/gt-postgis "2.7-SNAPSHOT"]                 
+                 [org.geotools.jdbc/gt-jdbc-postgis "2.7-SNAPSHOT"]                 
                  [org.geotools/gt-render "2.7-SNAPSHOT"]
                  [org.geotools/gt-shapefile "2.7-SNAPSHOT"]
                  [org.geotools/gt-swing "2.7-SNAPSHOT"]
