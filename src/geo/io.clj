@@ -59,9 +59,19 @@
 (defn get-feature-type [datastore & type-name]
   (java-apply datastore getSchema type-name))
 
+
 (defn get-projection
   [datastore & type-name]
   (.. (java-apply datastore getFeatureSource type-name) getBounds crs))
+
+(defn get-schema
+  [feature-source]
+  (seq (.getTypes (.getSchema feature-source))))
+
+(defn make-feature-source
+  "convenience wrapper function to create a feature source"
+  ([path]
+     (.getFeatureSource (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)} ))))
 
 (defn make-datastore
   "convenience wrapper function to create a datastore from a mapping"
