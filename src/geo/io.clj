@@ -4,6 +4,7 @@
    [geo.utils :only (java-apply)])
   (:import
    [java.io File]
+   [org.geotools.filter.text.cql2  CQL]
    [org.geotools.feature.simple SimpleFeatureBuilder]
    [org.geotools.factory CommonFactoryFinder]
    [org.geotools.styling SLDParser]
@@ -68,15 +69,21 @@
   [feature-source]
   (seq (.getTypes (.getSchema feature-source))))
 
-(defn make-feature-source
-  "convenience wrapper function to create a feature source"
-  ([path]
-     (.getFeatureSource (DataStoreFinder/getDataStore {"url" (-> path java.io.File. .toURL)} ))))
-
 (defn make-datastore
   "convenience wrapper function to create a datastore from a mapping"
   [connection-info]
   (DataStoreFinder/getDataStore connection-info))
+
+(defn make-filter
+  [string]
+  (CQL/toFilter string))
+
+(defn make-feature-source
+  "convenience wrapper function to create a feature source"
+  ([conn-info]
+     (.getFeatureSource (make-datastore conn-info)))
+  ([conn-info & table]
+     (.getFeatureSource (make-datastore conn-info) (first table))))
 
 (defn read-shp
   "Reads and loads a shapefile"
