@@ -1,6 +1,7 @@
 (ns geo.render
   (:import [org.geotools.data FeatureSource]
            [javax.imageio ImageIO]
+           [java.io FileOutputStream]
            [org.geotools.map DefaultMapContext MapContext GraphicEnhancedMapContext]
            [org.geotools.data Query]
            [javax.swing JFrame]
@@ -30,13 +31,15 @@
 (defn swing
     "create a swing frame displaying the features in the geotools
    featurecollection. See make-mapcontext for options"
-    [feature-collection & frameoptions]
-    (doto (JMapFrame. (apply make-mapcontext feature-collection frameoptions))
-      (.setDefaultCloseOperation (JFrame/DISPOSE_ON_CLOSE))
-      (.setSize 800 600)
-      (.enableStatusBar true)
-      (.enableToolBar true)
-      (.setVisible true)))
+    [feature-collection  & frameoptions]
+    (let [mapcontext (make-mapcontext)]
+      (.addLayer mapcontext feature-collection nil)
+      (doto (JMapFrame. mapcontext)
+       (.setDefaultCloseOperation (JFrame/DISPOSE_ON_CLOSE))
+       (.setSize 800 600)
+       (.enableStatusBar true)
+       (.enableToolBar true)
+       (.setVisible true))))
 
 
 (defn write-image
@@ -52,3 +55,5 @@
       (.setContext  mapcontext)
       (.paint graphics screen-area extent))
     (ImageIO/write image "png" (File. imageout))))
+
+
