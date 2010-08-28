@@ -93,6 +93,31 @@
      :features (read-features datastore)
      :projection (get-projection datastore)}))
 
+(defn make-postgis
+  ;; hack to make setting up a postgis database easier
+  ;; should clean up with regex 
+  [params]
+  (let [conn (.split params "@")
+        host (first (.split (second conn) ":"))
+        port-table (second (.split (second conn) ":"))        
+        port (first (.split port-table "/"))
+        database  (second (.split port-table "/"))
+        user (first (.split (first conn) ":"))
+        password (second (.split (first conn) ":"))]
+    (make-datastore {"dbtype" "postgis" "host" host  "database" database "port" port "user" user "passwd" password })))
+
+(defn find-datastore
+  ;; "shp://path" 
+  ;; "pg://user:pass@localhost:port/db"
+  ;; "h2://dbname"
+  [params]
+  (let [type (first (seq (.split params "://")))
+        params (second (seq (.split params "://")))]
+    (if (= type "shp") (make-datastore {"url" (-> params java.io.File. .toURL)})
+        (if (= type "pg") (make-postgis params)
+            (if (= type "h2") (make-datastore {"dbtype" "h2" "dbname" params}))))))
+
+
 (defn read-pg
   "takes a postgis"
   [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
