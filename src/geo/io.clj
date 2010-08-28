@@ -39,16 +39,45 @@
     (.set feature-builder  (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
     (.buildFeature feature-builder (:id feature))))
 
-(defn make-feature-collection [feature-type features]
-  (let [feature-builder (SimpleFeatureBuilder. feature-type)
-        memory-feature-collection (MemoryFeatureCollection. feature-type)]
-    (doseq [feature features]
-      (doseq [prop-keyval (:properties feature)]
+(defn make-lazy-feature-iterator
+  "returns a feature iterator that lazily consumes the sequence"
+  [feature-builder feature-sequence]
+  (let [features-state (atom feature-sequence)]
+    (reify
+     org.geotools.feature.FeatureIterator
+     (close [this])
+     (hasNext [this] (boolean (seq @features-state)))
+     (next [this]
+           (let [current-state @features-state]
+             (swap! features-state next)
+             (feature-builder (first @current-state)))))))
+
+(defn make-lazy-feature-collection
+  "creates a minimal feature collection backed by the sequence which gets consumed lazily"
+  [feature-builder feature-type sequence]
+  (reify
+   org.geotools.feature.FeatureCollection
+   (getSchema [this] feature-type)
+   (features [this]
+             (make-lazy-feature-iterator feature-builder sequence))))
+
+(defn make-feature-builder
+  "create a function that can take a feature hash and generate a geotools simplefeature"
+  [feature-type]
+  (let [feature-builder (SimpleFeatureBuilder. feature-type)]
+    (fn [feature-hash]
+      (doseq [prop-keyval (:properties feature-hash)]
         (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-      (.set feature-builder (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
-      (.add memory-feature-collection
-            (.buildFeature feature-builder (:id feature))))
-    memory-feature-collection))
+      (.set feature-builder (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature-hash))
+      (.buildFeature feature-builder (:id feature-hash)))))
+
+(defn make-feature-collection
+  "creates a lazy implementation of a feature collection"
+  [feature-type features]
+  (make-lazy-feature-collection
+   (make-feature-builder feature-type)
+   feature-type
+   features))
 
 (defn read-features
   "FeatureCollection"
