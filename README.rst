@@ -7,16 +7,6 @@ would like to help out please join the mailing list by emailing
 geo.clj@librelist.com.
 
 
-Usage
------
 
 
 
-Installation
------------- 
-
-
-
-License
-------- 
-MIT
