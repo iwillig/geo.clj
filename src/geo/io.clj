@@ -24,7 +24,7 @@
   [path]
   (first
    (.readXML (SLDParser. *style-factory* (-> path java.io.File. .toURL)))))
-  
+
 (defn geotoolsfeature->feature [feature]
  {:type "Feature"
   :id (.getID feature)
@@ -50,7 +50,18 @@
      (next [this]
            (let [current-state @features-state]
              (swap! features-state next)
-             (feature-builder (first @current-state)))))))
+             (feature-builder (first current-state)))))))
+
+(defn make-lazy-iterator
+  [feature-builder feature-sequence]
+  (let [features-state (atom feature-sequence)]
+    (reify
+     java.util.Iterator
+     (hasNext [this] (boolean (seq @features-state)))
+     (next [this]
+           (let [current-state @features-state]
+             (swap! features-state next)
+             (feature-builder (first current-state)))))))
 
 (defn make-lazy-feature-collection
   "creates a minimal feature collection backed by the sequence which gets consumed lazily"
@@ -59,7 +70,10 @@
    org.geotools.feature.FeatureCollection
    (getSchema [this] feature-type)
    (features [this]
-             (make-lazy-feature-iterator feature-builder sequence))))
+             (make-lazy-feature-iterator feature-builder sequence))
+   (iterator [this]
+             (make-lazy-iterator feature-builder sequence))
+   (^void close [this ^java.util.Iterator iterator] nil)))
 
 (defn make-feature-builder
   "create a function that can take a feature hash and generate a geotools simplefeature"
