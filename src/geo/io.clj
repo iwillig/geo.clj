@@ -39,29 +39,32 @@
     (.set feature-builder  (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
     (.buildFeature feature-builder (:id feature))))
 
-(defn make-lazy-feature-iterator
-  "returns a feature iterator that lazily consumes the sequence"
-  [feature-builder feature-sequence]
-  (let [features-state (atom feature-sequence)]
-    (reify
-     org.geotools.feature.FeatureIterator
-     (close [this])
-     (hasNext [this] (boolean (seq @features-state)))
-     (next [this]
-           (let [current-state @features-state]
-             (swap! features-state next)
-             (feature-builder (first current-state)))))))
+(defmacro lazy-iterator-generator
+  "macro to create an iterator or featureiterator with shared implementation"
+  [fn-name iterator-type has-close]
+  `(defn ~fn-name [~'feature-builder ~'feature-sequence]
+     (let [~'features-state (atom ~'feature-sequence)]
+       (reify
+        ~iterator-type
+        ~@(let [impl
+                `((~'hasNext [this] (boolean (seq @~'features-state)))
+                  (~'next [this]
+                          (let [current-state# @~'features-state]
+                            (swap! ~'features-state next)
+                            (~'feature-builder (first current-state#)))))]
+            (if has-close
+              (cons `(~'close [this]) impl)
+              impl))))))
 
-(defn make-lazy-iterator
-  [feature-builder feature-sequence]
-  (let [features-state (atom feature-sequence)]
-    (reify
-     java.util.Iterator
-     (hasNext [this] (boolean (seq @features-state)))
-     (next [this]
-           (let [current-state @features-state]
-             (swap! features-state next)
-             (feature-builder (first current-state)))))))
+(lazy-iterator-generator
+ make-lazy-feature-iterator
+ org.geotools.feature.FeatureIterator
+ true)
+
+(lazy-iterator-generator
+ make-lazy-iterator
+ java.util.Iterator
+ false)
 
 (defn make-lazy-feature-collection
   "creates a minimal feature collection backed by the sequence which gets consumed lazily"
