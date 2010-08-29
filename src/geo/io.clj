@@ -66,18 +66,6 @@
  java.util.Iterator
  false)
 
-(defn make-lazy-feature-collection
-  "creates a minimal feature collection backed by the sequence which gets consumed lazily"
-  [feature-builder feature-type sequence]
-  (reify
-   org.geotools.feature.FeatureCollection
-   (getSchema [this] feature-type)
-   (features [this]
-             (make-lazy-feature-iterator feature-builder sequence))
-   (iterator [this]
-             (make-lazy-iterator feature-builder sequence))
-   (^void close [this ^java.util.Iterator iterator] nil)))
-
 (defn make-feature-builder
   "create a function that can take a feature hash and generate a geotools simplefeature"
   [feature-type]
@@ -88,13 +76,27 @@
       (.set feature-builder (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature-hash))
       (.buildFeature feature-builder (:id feature-hash)))))
 
-(defn make-feature-collection
+(defn make-lazy-feature-collection
   "creates a lazy implementation of a feature collection"
-  [feature-type features]
-  (make-lazy-feature-collection
-   (make-feature-builder feature-type)
-   feature-type
-   features))
+  [feature-type features-sequence]
+  (let [feature-builder (make-feature-builder feature-type)]
+    (reify
+     org.geotools.feature.FeatureCollection
+     (getSchema [this] feature-type)
+     (features [this]
+               (make-lazy-feature-iterator feature-builder features-sequence))
+     (iterator [this]
+               (make-lazy-iterator feature-builder features-sequence))
+     (^void close [this ^java.util.Iterator iterator] nil))))
+
+(defn make-eager-feature-collection
+  "uses the geotools memoryfeaturecollection to store all features in memory"
+  [feature-type features-sequence]
+  (let [feature-builder (make-feature-builder feature-type)
+        memory-feature-collection (MemoryFeatureCollection. feature-type)]
+    (doseq [feature-hash features-sequence]
+      (.add memory-feature-collection (feature-builder feature-hash)))
+    memory-feature-collection))
 
 (defn read-features
   "FeatureCollection"
