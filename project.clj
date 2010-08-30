@@ -13,4 +13,5 @@
                  [org.geotools/gt-shapefile "2.7-SNAPSHOT"]
                  [org.geotools/gt-swing "2.7-SNAPSHOT"]
                  [com.vividsolutions/jts "1.12-SNAPSHOT"]]
+  :main geo.core
   :dev-dependencies [[swank-clojure "1.2.0"]])

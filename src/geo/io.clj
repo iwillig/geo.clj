@@ -6,6 +6,7 @@
   (:import
    [java.io File]
    [com.vividsolutions.jts.geom Geometry]
+   [org.geotools.data DefaultTransaction]
    [org.geotools.feature.simple SimpleFeatureBuilder]
    [org.geotools.data.memory MemoryFeatureCollection]
    [org.geotools.data DataStoreFinder]))
@@ -107,10 +108,11 @@
 
 (defn make-eager-feature-collection
   "uses the geotools memoryfeaturecollection to store all features in memory"
-  [feature-type features-sequence]
-  (let [feature-builder (make-feature-builder feature-type)
+  [geo-sequence]
+  (let [feature-type (.feature-type geo-sequence)
+        feature-builder (make-feature-builder feature-type)
         memory-feature-collection (MemoryFeatureCollection. feature-type)]
-    (doseq [clj-feature features-sequence]
+    (doseq [clj-feature (.features  geo-sequence)]
       (.add memory-feature-collection (feature-builder clj-feature)))
     memory-feature-collection))
 
@@ -130,8 +132,30 @@
      (bounds [this] (.getBounds feature-collection))
      (close [this] (.close feature-collection feature-iterator)))))
 
-(defn write-features
-  "write a collection to a data store"
-  [datastore feature-collection & type-name]
-  (let [feature-source (java-apply datastore getFeatureSource type-name)]
-    (.addFeatures feature-source feature-collection)))
+(defn layers
+  "nicer output for the repl"
+  [datastore]
+  (seq (.getTypeNames datastore)))
+
+(defn add-layer!
+  "creates a layer from an given schema"
+  [datastore schema]
+  (.createSchema datastore schema))
+
+(defn write-feature
+  "writes a collection to an existing layer in a datastore"
+  [datastore geo-collection]
+  (let [transaction (DefaultTransaction. "add")
+        gt-collection (make-lazy-feature-collection
+                    (.feature-type geo-collection)
+                    (.features geo-collection))
+        feature-source (.getFeatureSource datastore
+                         (.getLocalPart (.getName (.feature-type geo-collection))))]
+    (.setTransaction feature-source transaction)
+    (try
+      (.addFeatures feature-source gt-collection)
+      (.commit transaction)
+      (println "success")
+      (catch Exception _ (.rollback transaction ))
+      (finally (.close transaction)))))
+
