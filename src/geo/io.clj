@@ -1,47 +1,62 @@
 (ns geo.io
   (:use
-   [geo.seq]
    [geo.utils :only (java-apply)])
+  (:require
+   [geo.interface :as geo])
   (:import
    [java.io File]
-   [org.geotools.filter.text.cql2  CQL]
+   [com.vividsolutions.jts.geom Geometry]
    [org.geotools.feature.simple SimpleFeatureBuilder]
-   [org.geotools.factory CommonFactoryFinder]
-   [org.geotools.styling SLDParser]
    [org.geotools.data.memory MemoryFeatureCollection]
-   [org.geotools.data DataStoreFinder DataStore]))
+   [org.geotools.data DataStoreFinder]))
+
+(defn data-store
+  ;; "shp://path"
+  ;; "pg://user:pass@localhost:port/db"
+  ;; "h2://dbname
+  "returns a geotools datastore given an input string uri"
+  [uri]
+  (when-let
+      [params
+       (condp #(.startsWith %2 %) uri
+         "shp://" {"url"
+                   (-> (.substring uri (count "shp://"))
+                       File. .toURL)}
+         "pg://" (when-let
+                     [[_ user pass host port db]
+                      (re-find
+                       (re-pattern "pg://([^:]*):([^@]*)@([^:]*):([^/]*)/(.*)")
+                       uri)]
+                   {"dbtype" "postgis" "host" host "port" port
+                    "user" user "passwd" pass "database" db})
+         "h2://" {"dbtype" "h2"
+                  "dbname" (.substring uri (count "h2://"))})]
+    (DataStoreFinder/getDataStore params)))
 
 (defn read-properties
-  [feature]
-  (let [nongeom-properties (filter #(not (-> % .getValue class (isa? com.vividsolutions.jts.geom.Geometry)))
-                                   (.getProperties feature))]
-    (reduce (fn [hashmap field] (assoc hashmap (-> field .getDescriptor .getLocalName keyword)
-                                       (.getValue field))) {} nongeom-properties)))
+  "given a geotools feature, return a hash of properties that aren't geometries"
+  [geotools-feature]
+  (let [geom-prop? #(-> % .getValue class (isa? Geometry))
+        nongeom-properties (remove geom-prop?
+                                   (.getProperties geotools-feature))]
+    (reduce (fn [hashmap field]
+              (assoc hashmap
+                (-> field .getDescriptor .getLocalName keyword)
+                (.getValue field)))
+            {}
+            nongeom-properties)))
 
-(def *style-factory*  (CommonFactoryFinder/getStyleFactory nil))
+(defn make-feature [geotools-feature]
+  "given a geotools feature, adapt to our custom type"
+  (reify
+   geo/Feature
+   (id [this] (.getID geotools-feature))
+   (properties [this] (read-properties geotools-feature))
+   (geometry [this] (.getDefaultGeometry geotools-feature))))
 
-(defn read-sld
-  [path]
-  (first
-   (.readXML (SLDParser. *style-factory* (-> path java.io.File. .toURL)))))
-
-(defn geotoolsfeature->feature [feature]
- {:type "Feature"
-  :id (.getID feature)
-  :properties (read-properties feature)
-  :geometry (.getDefaultGeometry feature)})
-
-(defn feature->geotoolsfeature [feature feature-type]
-  (let [props (:properties feature)
-        feature-builder (SimpleFeatureBuilder. feature-type)]
-    (doseq [prop-keyval (:properties feature)]
-      (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-    (.set feature-builder  (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature))
-    (.buildFeature feature-builder (:id feature))))
-
-(defmacro lazy-iterator-generator
-  "macro to create an iterator or featureiterator with shared implementation"
-  [fn-name iterator-type has-close]
+(defmacro lazy-feature-iterator-generator
+  "macro to create an iterator or featureiterator"
+  [fn-name iterator-type]
   `(defn ~fn-name [~'feature-builder ~'feature-sequence]
      (let [~'features-state (atom ~'feature-sequence)]
        (reify
@@ -52,29 +67,30 @@
                           (let [current-state# @~'features-state]
                             (swap! ~'features-state next)
                             (~'feature-builder (first current-state#)))))]
-            (if has-close
+            (if (= iterator-type org.geotools.feature.FeatureIterator)
               (cons `(~'close [this]) impl)
               impl))))))
 
-(lazy-iterator-generator
+(lazy-feature-iterator-generator
  make-lazy-feature-iterator
- org.geotools.feature.FeatureIterator
- true)
+ org.geotools.feature.FeatureIterator)
 
-(lazy-iterator-generator
+(lazy-feature-iterator-generator
  make-lazy-iterator
- java.util.Iterator
- false)
+ java.util.Iterator)
 
 (defn make-feature-builder
-  "create a function that can take a feature hash and generate a geotools simplefeature"
+  "create a function that can take a clojure feature
+   and generates a geotools feature"
   [feature-type]
   (let [feature-builder (SimpleFeatureBuilder. feature-type)]
-    (fn [feature-hash]
-      (doseq [prop-keyval (:properties feature-hash)]
+    (fn [clj-feature]
+      (doseq [prop-keyval (geo/properties clj-feature)]
         (.set feature-builder (name (key prop-keyval)) (val prop-keyval)))
-      (.set feature-builder (.getLocalName (.getGeometryDescriptor feature-type)) (:geometry feature-hash))
-      (.buildFeature feature-builder (:id feature-hash)))))
+      (.set feature-builder
+            (.getLocalName (.getGeometryDescriptor feature-type))
+            (geo/geometry clj-feature))
+      (.buildFeature feature-builder (geo/id clj-feature)))))
 
 (defn make-lazy-feature-collection
   "creates a lazy implementation of a feature collection"
@@ -94,102 +110,28 @@
   [feature-type features-sequence]
   (let [feature-builder (make-feature-builder feature-type)
         memory-feature-collection (MemoryFeatureCollection. feature-type)]
-    (doseq [feature-hash features-sequence]
-      (.add memory-feature-collection (feature-builder feature-hash)))
+    (doseq [clj-feature features-sequence]
+      (.add memory-feature-collection (feature-builder clj-feature)))
     memory-feature-collection))
 
 (defn read-features
-  "FeatureCollection"
+  "read features from data store and return a collection"
   [datastore & type-name]
-  (map geotoolsfeature->feature
-       (let [feature-source (java-apply datastore getFeatureSource type-name)]
-         (iterator-seq (.. feature-source getFeatures iterator)))))
-
-(defn get-feature-type [datastore & type-name]
-  (java-apply datastore getSchema type-name))
-
-
-(defn get-projection
-  [datastore & type-name]
-  (.. (java-apply datastore getFeatureSource type-name) getBounds crs))
-
-(defn get-schema
-  [feature-source]
-  (seq (.getTypes (.getSchema feature-source))))
-
-(defn make-datastore
-  "convenience wrapper function to create a datastore from a mapping"
-  [connection-info]
-  (DataStoreFinder/getDataStore connection-info))
-
-(defn make-filter
-  [string]
-  (CQL/toFilter string))
-
-(defn make-feature-source
-  "convenience wrapper function to create a feature source"
-  ([conn-info]
-     (.getFeatureSource (make-datastore conn-info)))
-  ([conn-info & table]
-     (.getFeatureSource (make-datastore conn-info) (first table))))
-
-(defn read-shp
-  "Reads and loads a shapefile"
-  [path]
-  (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
-    {:type "FeatureCollection"
-     :features (read-features datastore)
-     :projection (get-projection datastore)}))
-
-(defn make-postgis
-  ;; hack to make setting up a postgis database easier
-  ;; should clean up with regex 
-  [params]
-  (let [conn (.split params "@")
-        host (first (.split (second conn) ":"))
-        port-table (second (.split (second conn) ":"))        
-        port (first (.split port-table "/"))
-        database  (second (.split port-table "/"))
-        user (first (.split (first conn) ":"))
-        password (second (.split (first conn) ":"))]
-    (make-datastore {"dbtype" "postgis" "host" host  "database" database "port" port "user" user "passwd" password })))
-
-(defn find-datastore
-  ;; "shp://path" 
-  ;; "pg://user:pass@localhost:port/db"
-  ;; "h2://dbname"
-  [params]
-  (let [type (first (seq (.split params "://")))
-        params (second (seq (.split params "://")))]
-    (if (= type "shp") (make-datastore {"url" (-> params java.io.File. .toURL)})
-        (if (= type "pg") (make-postgis params)
-            (if (= type "h2") (make-datastore {"dbtype" "h2" "dbname" params}))))))
-
-
-(defn read-pg
-  "takes a postgis"
-  [{:keys [dbtype database host port user passwd] :as connection-info} table-name]
-  (let [datastore (make-datastore connection-info)]
-    {:type "FeatureCollection"
-     :features (read-features datastore table-name)
-     :projection (get-projection datastore table-name)}))
+  (let [feature-source (java-apply datastore getFeatureSource type-name)
+        feature-collection (.. feature-source getFeatures)
+        feature-iterator (.iterator feature-collection)]
+    (reify
+     geo/Collection
+     (features [this] (map make-feature (iterator-seq feature-iterator)))
+     (feature-type [this] (java-apply datastore getSchema type-name))
+     (projection [this]
+                 (.. (java-apply datastore getFeatureSource type-name)
+                     getBounds crs))
+     (bounds [this] (.getBounds feature-collection))
+     (close [this] (.close feature-collection feature-iterator)))))
 
 (defn write-features
-  "write a feature collection to a data store"
-  [feature-collection datastore & type-name]
+  "write a collection to a data store"
+  [datastore feature-collection & type-name]
   (let [feature-source (java-apply datastore getFeatureSource type-name)]
     (.addFeatures feature-source feature-collection)))
-
-;; writing to shapefile doesn't really work
-;; it needs an existing shape file and it doesn't seem to currently complete
-(defn write-shp
-  "Takes a feature collection and writes it to an shapefile"
-  [feature-collection path]
-  (let [datastore (make-datastore {"url" (-> path java.io.File. .toURL)})]
-    (write-features feature-collection datastore)))
-
-(defn write-pg
-  "takes a feature collections and writes it to an existing postgis table. returns the number of features added"
-  [feature-collection connection-info table-name]
-  (let [datastore (make-datastore connection-info)]
-    (.size (write-features feature-collection datastore table-name))))
