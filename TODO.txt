@@ -5,3 +5,4 @@
   - have individual features also implement gis feature interface? 
 * macro to auto close feature collection that has been read in
   - then can create a wrapper macro around that that reads and closes feature collection
+* need to have additional wrappers to easily create features/collections from different scenarios
