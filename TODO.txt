@@ -1,0 +1,7 @@
+* should have everything implement geotools interfaces as much as possible, so then we can reuse those same objects instead of converting back and forth
+  - read-features could return something that implements featurecollection
+  - can create impl module that creates these wrapping feature collections based on use cases
+  - macro where body has seq of features and return gets wrapped back into a lazy feature collection
+  - have individual features also implement gis feature interface? 
+* macro to auto close feature collection that has been read in
+  - then can create a wrapper macro around that that reads and closes feature collection
