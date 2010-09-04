@@ -2,7 +2,7 @@
 Geo.clj To do list
 ===================
 
-General 
+General
 --------
 
 * Should have everything implement geotools interfaces as much as
@@ -18,7 +18,7 @@ General
   - Macro where body has seq of features and return gets wrapped back
     into a lazy feature collection
 
-  - Have individual features also implement gis feature interface? 
+  - Have individual features also implement gis feature interface?
 
 * Macro to auto close feature collection that has been read in
 
@@ -32,12 +32,12 @@ General
 Geometries
 ----------
 
-* Geometries should know about their projections 
-* Geometries should be able to be rendered. 
+* Geometries should know about their projections
+* Geometries should be able to be rendered.
 
-Style 
+Style
 ------
 
-* Style api. it should be easy to create geotools style objects. 
+* Style api. it should be easy to create geotools style objects.
 * gt-css. It would be great to have David's gt-css project. That
-  requires including scala as in your project.  
+  requires including scala as in your project.
