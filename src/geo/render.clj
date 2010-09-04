@@ -34,9 +34,8 @@
 (defn viewer
     "create a swing frame displaying the features in the geotools
    featurecollection. See make-mapcontext for options"
-    [geo-collection  & frameoptions]
-    (let [ gt-collection ( make-eager-feature-collection geo-collection)
-          mapcontext (make-mapcontext)]
+    [gt-collection & frameoptions]
+    (let [mapcontext (make-mapcontext)]
       (.addLayer mapcontext gt-collection nil)
       (doto (JMapFrame. mapcontext)
        (.setDefaultCloseOperation (JFrame/DISPOSE_ON_CLOSE))
