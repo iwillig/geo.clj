@@ -117,7 +117,9 @@
     (try
       (.addFeatures feature-source gt-collection)
       (.commit transaction)
-      (catch Exception _ (.rollback transaction ))
+      (catch Exception ex
+        (.rollback transaction)
+        (throw ex))
       (finally (.close transaction)))))
 
 (defmacro with-features
