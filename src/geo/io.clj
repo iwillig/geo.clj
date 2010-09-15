@@ -170,3 +170,7 @@
   "creates a layer from an given schema"
   [datastore schema]
   (.createSchema datastore schema))
+
+;; convenience functions for creating filters
+(defn make-filter [filter-text]
+  (org.geotools.filter.text.cql2.CQL/toFilter filter-text))
