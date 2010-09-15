@@ -1,6 +1,4 @@
 (ns geo.io
-  (:use
-   [geo.utils :only (java-apply)])
   (:require
    [geo.interface :as geo])
   (:import
@@ -104,15 +102,20 @@
 
 (defn read-features
   "read features from data store and return a collection"
-  [datastore & type-name]
-  (.getFeatures
-   (java-apply datastore getFeatureSource type-name)))
+  [datastore & options]
+  (let [{:keys [layer query]} (apply hash-map options)
+        feature-source (if layer
+                         (.getFeatureSource datastore layer)
+                         (.getFeatureSource datastore))]
+    (if query
+      (.getFeatures feature-source query)
+      (.getFeatures feature-source))))
 
 (defn write-features
   "writes a collection to an existing layer in a datastore"
-  [datastore type-name gt-collection]
+  [datastore layer gt-collection]
   (let [transaction (DefaultTransaction. "add")
-        feature-source (.getFeatureSource datastore type-name)]
+        feature-source (.getFeatureSource datastore layer)]
     (.setTransaction feature-source transaction)
     (try
       (.addFeatures feature-source gt-collection)
