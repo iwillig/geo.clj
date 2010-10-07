@@ -2,33 +2,6 @@
 Geo.clj To do list
 ===================
 
-General
---------
-
-* Should have everything implement geotools interfaces as much as
-  possible, so then we can reuse those same objects instead of
-  converting back and forth
-
-  - Read-features could return something that implements
-    featurecollection
-
-  - Can create impl module that creates these wrapping feature
-    collections based on use cases
-
-  - Macro where body has seq of features and return gets wrapped back
-    into a lazy feature collection
-
-  - Have individual features also implement gis feature interface?
-
-* Macro to auto close feature collection that has been read in
-
-  - Then can create a wrapper macro around that that reads and closes
-    feature collection
-
-
-* Need to have additional wrappers to easily create
-  features/collections from different scenarios
-
 Geometries
 ----------
 

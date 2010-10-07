@@ -134,7 +134,8 @@
     (throw (IllegalArgumentException. "bad features binding"))
     `(let [gt-coll# ~(features-binding 1)
            feature-iterator# (.iterator gt-coll#)
-           ~(features-binding 0) (iterator-seq feature-iterator#)]
+           feature-seq# (iterator-seq feature-iterator#)
+           ~(features-binding 0) (map make-geo-feature feature-seq#)]
        (try
          ~@body
          (finally (.close gt-coll# feature-iterator#))))))
@@ -147,17 +148,14 @@
           (not (= 2 (count feature-binding)))
           (not (symbol? (feature-binding 0))))
     (throw (IllegalArgumentException. "bad features binding"))
-    `(let [gt-coll# ~(feature-binding 1)
-           feature-iterator# (.iterator gt-coll#)
-           features# (iterator-seq feature-iterator#)]
-       (try
+    `(let [gt-coll# ~(feature-binding 1)]
+       (with-features [features# gt-coll#]
          (make-eager-feature-collection
           (.getSchema gt-coll#)
           (remove
            nil?
            (map (fn [~(feature-binding 0)] ~@body)
-                (map make-geo-feature features#))))
-         (finally (.close gt-coll# feature-iterator#))))))
+                (map make-geo-feature features#))))))))
 
 ;; FIXME
 ;; maybe we put these layer functions in a layer.clj file
