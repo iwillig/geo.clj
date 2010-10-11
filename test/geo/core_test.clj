@@ -33,6 +33,4 @@
   (is (class (create-polygon '((0 0) (0 1) (1 1) (1 0) (0 0))))
       "com.vividsolutions.jts.geom.Polygon"))
 
-;;(deftest shapefile
-;;  (map #(.getCentroid (% :geometry)) (read-shapefile "/home/ivan/Data/TM_WORLD_BORDERS-0.3.shp")))
 

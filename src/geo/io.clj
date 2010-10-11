@@ -1,6 +1,4 @@
 (ns geo.io
-  (:require
-   [geo.interface :as geo])
   (:import
    [java.io File]
    [com.vividsolutions.jts.geom Geometry]
