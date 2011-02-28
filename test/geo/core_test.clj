@@ -4,9 +4,6 @@
                                   create-line-string
                                   create-linear-ring
                                   from-wkt)]
-        [geo.analysis :only(buffer
-                                  equals)]
-        [geo.io :only(read-shapefile)]
         :reload-all)
   (:use [clojure.test]))
 
@@ -25,9 +22,6 @@
 (deftest well-know-text
   (is (class (from-wkt "LINESTRING(10 34,23 45)"))
      "com.vividsolutions.jts.geom.LineString"))
-
-(deftest test-equals
-  (equals (create-point 43 63.2)(create-point 39 32)))
 
 (deftest test-polygon
   (is (class (create-polygon '((0 0) (0 1) (1 1) (1 0) (0 0))))

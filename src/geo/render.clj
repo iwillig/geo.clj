@@ -26,8 +26,7 @@
     (doto (GraphicEnhancedMapContext.)
       (.setTitle (or (:title options) "Default Map"))
       (.setBgColor Color/white)
-      (.setTransparent false)
-     (.setTransparent false))))
+      (.setTransparent false))))
 
 
 
@@ -35,7 +34,7 @@
     "create a swing frame displaying the features in the geotools
    featurecollection. See make-mapcontext for options"
     [gt-collection & frameoptions]
-    (let [mapcontext (make-mapcontext)]
+    (let [mapcontext (apply make-mapcontext frameoptions)]
       (.addLayer mapcontext gt-collection nil)
       (doto (JMapFrame. mapcontext)
        (.setDefaultCloseOperation (JFrame/DISPOSE_ON_CLOSE))
@@ -48,35 +47,42 @@
 (defn render-image
   "renders a images"
   [imageout feature-collection & mapoptions]
-  (let [image (BufferedImage. 800 600 BufferedImage/TYPE_INT_ARGB)
-        graphics (.createGraphics image)
-        extent (.getBounds feature-collection)
-        screen-area (Rectangle. 0 0 800 600)
-        mapcontext (apply make-mapcontext mapoptions) ]
+  (let [image-format    (or (:image-format mapoptions) "png")
+        height          (or (:height mapoptions) 600)
+        width           (or (:width  mapoptions) 600) 
+        image           (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
+        graphics        (.createGraphics image)
+        extent          (.getBounds feature-collection)
+        screen-area     (Rectangle. 0 0 width height)
+        mapcontext      (apply make-mapcontext mapoptions)]
     (.addLayer mapcontext feature-collection nil)
     (doto (StreamingRenderer.)
       (.setJava2DHints
-       (RenderingHints. RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))
+       (RenderingHints.
+        RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))
       (.setContext  mapcontext)
       (.paint graphics screen-area extent))
     (ImageIO/write image "png" (File. imageout))))
 
 
-(defn render-stream
-  [feature-collection]
-  (let [image (BufferedImage. 600 400 BufferedImage/TYPE_INT_ARGB)
-          graphics (.createGraphics image)
-          output (ByteArrayOutputStream.)
-          screen-area (Rectangle. 0 0 600 400)
-          extent (.getBounds feature-collection)
-          mapcontext (make-mapcontext)]
+(defn render->stream
+  [feature-collection extent
+   & {:keys [height width]
+      :or [height 100 width 100]}]
+  (let [
+        image (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
+        graphics (.createGraphics image)
+        output (ByteArrayOutputStream.)
+        screen-area (Rectangle. 0 0 width height)
+        mapcontext (make-mapcontext)]
     (.addLayer mapcontext feature-collection nil)
     (doto (StreamingRenderer.)
       (.setJava2DHints
-       (RenderingHints. RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))
+       (RenderingHints.
+        RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))
       (.setContext mapcontext)
       (.paint graphics screen-area extent))
     (ImageIO/write image "png" output)
-   (ByteArrayInputStream. (.toByteArray output))))
+    (ByteArrayInputStream. (.toByteArray output))))
 
 

@@ -155,13 +155,6 @@
            (map (fn [~(feature-binding 0)] ~@body)
                 (map make-geo-feature features#))))))))
 
-;; FIXME
-;; maybe we put these layer functions in a layer.clj file
-(defn layers
-  "nicer output for the repl"
-  [datastore]
-  (seq (.getTypeNames datastore)))
-
 (defn add-layer!
   "creates a layer from an given schema"
   [datastore schema]

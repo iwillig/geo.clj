@@ -1,5 +1,4 @@
 (ns geo.geometry
-  (:use [clojure.contrib.json.write :only (json-str print-json)])
   (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
            [org.geotools.referencing CRS]
            [com.vividsolutions.jts.geom Coordinate])) 
@@ -20,9 +19,9 @@
   [geometry]
   (seq (.getCoordinates geometry)))
 
-(defn geojson-str
-  [geometry]
-  (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates geometry))))
+;; (defn geojson-str
+;;   [geometry]
+;;   (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates geometry))))
 
 (defn read-geojson
   [string]) 
