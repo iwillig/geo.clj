@@ -1,30 +1,45 @@
 (ns geo.geometry
+  (:use
+   [clojure.contrib.seq-utils :only (seq-on)]
+   [geo seq])
+  (:require
+   [clojure.contrib.json :as json])
   (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
            [org.geotools.referencing CRS]
-           [com.vividsolutions.jts.geom Coordinate])) 
+           [com.vividsolutions.jts.geom
+            MultiPoint
+            MultiLineString
+            MultiPolygon
+            LineString
+            Polygon
+            LinearRing
+            Point
+            Coordinate])) 
 
 (def *factory* (JTSFactoryFinder/getGeometryFactory nil))
 (def *reader* (com.vividsolutions.jts.io.WKTReader. *factory*))
 
-(defn valid?
-  "checks the vaildity of a geometry"
-  [geometry]
-  (. geometry isValid))
+(defn write-geometry [geometry out]
+  (.print out (json/json-str {:type (.getGeometryType geometry)
+                               :coordinates [(seq-on geometry)]})))
 
-(defn union
-  [geom plusgeom]
-  (.union geom plusgeom))
+(extend Point json/Write-JSON
+        {:write-json write-geometry })
 
-(defn get-coords
-  [geometry]
-  (seq (.getCoordinates geometry)))
+(extend LineString json/Write-JSON
+        {:write-json write-geometry })
 
-;; (defn geojson-str
-;;   [geometry]
-;;   (json-str (map (fn [coord](vector (.x coord)(.y coord)))(.getCoordinates geometry))))
+(extend Polygon json/Write-JSON
+        {:write-json write-geometry })
 
-(defn read-geojson
-  [string]) 
+(extend MultiPoint json/Write-JSON
+        {:write-json write-geometry })
+
+(extend MultiLineString json/Write-JSON
+        {:write-json write-geometry })
+
+(extend MultiPolygon json/Write-JSON
+        {:write-json write-geometry})
 
 (defn from-wkt
   "Creates a geometry from well known text" 
@@ -63,12 +78,16 @@
 
 (defn create-multi-point
   [points]
-  (.createMultiPoint *factory* (into-array (map #(create-point (first %) (second %)) points))))
+  (.createMultiPoint *factory*
+                     (into-array
+                      (map #(create-point (first %) (second %)) points))))
 
 (defn create-multi-line-string
   [lines]
-  (.createMultiLineString *factory* (into-array (map #(create-line-string %) lines ))))
+  (.createMultiLineString *factory*
+                          (into-array (map #(create-line-string %) lines ))))
 
 (defn create-multi-polygon
   [polygons]
-  (.createMultiPolygon *factory* (into-array (map #(create-polygon %) polygons))))
+  (.createMultiPolygon *factory*
+                       (into-array (map #(create-polygon %) polygons))))

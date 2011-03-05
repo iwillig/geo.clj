@@ -67,15 +67,15 @@
 
 (defn render->stream
   [feature-collection extent
-   & {:keys [height width]
-      :or [height 100 width 100]}]
+   & {:keys [height width style]
+      :or [height 100 width 100 style nil]}]
   (let [
         image (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
         graphics (.createGraphics image)
         output (ByteArrayOutputStream.)
         screen-area (Rectangle. 0 0 width height)
         mapcontext (make-mapcontext)]
-    (.addLayer mapcontext feature-collection nil)
+    (.addLayer mapcontext feature-collection style)
     (doto (StreamingRenderer.)
       (.setJava2DHints
        (RenderingHints.

@@ -1,8 +1,9 @@
 (ns geo.io
+  (:require [clojure.contrib.string :as string])
   (:import
    [java.io File]
    [com.vividsolutions.jts.geom Geometry]
-   [org.geotools.data DefaultTransaction]
+   [org.geotools.data DefaultTransaction DataUtilities]
    [org.geotools.feature FeatureCollection]
    [org.geotools.feature.simple SimpleFeatureBuilder]
    [org.geotools.data.memory MemoryFeatureCollection]
@@ -30,6 +31,15 @@
          "h2://" {"dbtype" "h2"
                   "dbname" (.substring uri (count "h2://"))})]
     (DataStoreFinder/getDataStore params)))
+
+
+(defn create-schema [feature-name schema-types]
+  (let [name (name feature-name)
+        string (StringBuilder.)]
+    (doseq [type schema-types]
+      (.append string (str (string/join ":" type) ",")))
+    (DataUtilities/createType name (.toString string))))
+
 
 (defn read-properties
   "given a geotools feature, return a hash of properties that aren't geometries"
@@ -81,13 +91,13 @@
   [feature-type features-sequence]
   (let [feature-builder (make-feature-builder feature-type)]
     (reify
-     FeatureCollection
-     (getSchema [this] feature-type)
-     (features [this]
+      FeatureCollection
+      (getSchema [this] feature-type)
+      (features [this]
+                (make-lazy-feature-iterator feature-builder features-sequence))
+      (iterator [this]
                (make-lazy-feature-iterator feature-builder features-sequence))
-     (iterator [this]
-               (make-lazy-feature-iterator feature-builder features-sequence))
-     (^void close [this ^java.util.Iterator iterator] nil))))
+      (^void close [this ^java.util.Iterator iterator] nil))))
 
 (defn make-eager-feature-collection
   "uses the geotools memoryfeaturecollection to store all features in memory"
@@ -154,11 +164,6 @@
            nil?
            (map (fn [~(feature-binding 0)] ~@body)
                 (map make-geo-feature features#))))))))
-
-(defn add-layer!
-  "creates a layer from an given schema"
-  [datastore schema]
-  (.createSchema datastore schema))
 
 ;; convenience functions for creating filters
 (defn make-filter [filter-text]

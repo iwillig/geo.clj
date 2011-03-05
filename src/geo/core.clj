@@ -5,4 +5,5 @@
 
 
 (defn -main [& args]
-  (let [shape (data-store  "shp:///home/ivan/Desktop/MapPluto/NYCBldgs_2007.shp")]))
+  (let [shape
+        (data-store  "shp:///home/ivan/Desktop/MapPluto/NYCBldgs_2007.shp")]))
