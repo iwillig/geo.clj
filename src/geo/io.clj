@@ -33,11 +33,11 @@
     (DataStoreFinder/getDataStore params)))
 
 
-(defn create-schema [feature-name schema-types]
-  (let [name (name feature-name)
+(defn create-schema [schema]
+  (let [name (:name schema)
         string (StringBuilder.)]
-    (doseq [type schema-types]
-      (.append string (str (string/join ":" type) ",")))
+    (doseq [propertry (:properties schema)]
+      (.append string (str (string/join ":" propertry) ",")))
     (DataUtilities/createType name (.toString string))))
 
 
