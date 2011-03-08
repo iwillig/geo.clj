@@ -1,7 +1,9 @@
 (ns geo.render
   (:use geo.io)
-  (:import [org.geotools.data FeatureSource Query
+  (:import [org.geotools.data
+            FeatureSource Query
             DefaultFeatureResults]
+           [org.geotools.data.memory MemoryFeatureCollection]
            [javax.imageio ImageIO]
            [java.io
             File
@@ -50,8 +52,11 @@
   [map-context]
   (make-jmapframe map-context))
 
+(derive MemoryFeatureCollection ::collections)
+(derive DefaultFeatureResults   ::collections)
+
 (defmethod viewer
-  DefaultFeatureResults
+  ::collections
     [gt-collection & frameoptions]
     (let [map-context (apply make-mapcontext frameoptions)]
       (.addLayer map-context gt-collection nil)

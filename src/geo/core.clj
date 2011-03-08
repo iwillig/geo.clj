@@ -1,9 +1,10 @@
 (ns geo.core
   (:gen-class :main true)
-  (:use geo.io geo.render))
+  (:use [geo io render]))
 
 
 
 (defn -main [& args]
-  (let [shape
-        (data-store  "shp:///home/ivan/Desktop/MapPluto/NYCBldgs_2007.shp")]))
+  (let [shape (data-store  "shp:///home/ivan/data/nybb.shp")]
+    (process-features [f (-> shape (read-features))]
+                      (assoc f :geometry (.buffer (:geometry f) 1000)))))
