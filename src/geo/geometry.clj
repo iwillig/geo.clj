@@ -108,8 +108,10 @@
 (defn view [geometies & {:keys [height width]
                          :or {height 500 width 500}}]
   (let [plot (make-geometry-plot geometies)
-        chart (JFreeChart. plot)
+        chart (doto (JFreeChart. plot)
+                (.removeLegend))
         panel (ChartPanel. chart)]
+    
     (doto (JFrame.) 
       (.setContentPane panel)
       (.setVisible true)
