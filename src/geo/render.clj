@@ -91,34 +91,16 @@
       (.setContext  map-context)
       (.paint graphics screen-area extent)))
 
-(defn render->image
-  "renders a images"
-  [imageout feature-collection & mapoptions]
-  (let [image-format    (or (:image-format mapoptions) "png")
-        height          (or (:height mapoptions) 600)
-        width           (or (:width  mapoptions) 600) 
-        image           (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
-        graphics        (.createGraphics image)
-        extent          (.getBounds feature-collection)
-        screen-area     (Rectangle. 0 0 width height)
-        mapcontext      (apply make-mapcontext mapoptions)]
-    (.addLayer mapcontext feature-collection nil)
-    (make-render mapcontext graphics screen-area extent)
-    (ImageIO/write image "png" (File. imageout))))
-
-
-(defn render->stream
-  [feature-collection extent
+(defn render
+  [feature-collection output extent
    & {:keys [height width style]
       :or {height 100 width 100 style nil}}]
   (let [image (BufferedImage. width height BufferedImage/TYPE_INT_ARGB)
         graphics (.createGraphics image)
-        output (ByteArrayOutputStream.)
         screen-area (Rectangle. 0 0 width height)
         mapcontext (make-mapcontext)]
     (.addLayer mapcontext feature-collection style)
     (make-render mapcontext graphics screen-area extent)
-    (ImageIO/write image "png" output)
-    (ByteArrayInputStream. (.toByteArray output))))
+    (ImageIO/write image "png" output)))
 
 
