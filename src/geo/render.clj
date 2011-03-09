@@ -1,5 +1,7 @@
 (ns geo.render
-  (:use geo.io)
+  (:use
+   [clojure.contrib.seq-utils :only (seq-on)]
+   geo.io)
   (:import [org.geotools.data
             FeatureSource Query
             DefaultFeatureResults]
@@ -70,7 +72,7 @@
       (.setContext  map-context)
       (.paint graphics screen-area extent)))
 
-(defn render-image
+(defn render->image
   "renders a images"
   [imageout feature-collection & mapoptions]
   (let [image-format    (or (:image-format mapoptions) "png")
@@ -86,7 +88,7 @@
     (ImageIO/write image "png" (File. imageout))))
 
 
-(defn render-stream
+(defn render->stream
   [feature-collection extent
    & {:keys [height width style]
       :or {height 100 width 100 style nil}}]

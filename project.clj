@@ -9,6 +9,7 @@
                  [org.geotools/gt-referencing "2.7-beta1"]
                  [org.geotools.jdbc/gt-jdbc-postgis "2.7-beta1"] 
                  [org.geotools.jdbc/gt-jdbc-h2 "2.7-beta1"]                 
+                 [org.geotools/gt-charts "2.7-beta1"]
                  [org.geotools/gt-render "2.7-beta1"]
                  [org.geotools/gt-shapefile "2.7-beta1"]
                  [org.geotools/gt-swing "2.7-beta1"]]
