@@ -43,7 +43,7 @@
 (defn get-schema-list [gt-feature-source]
   "Returns the column names of a  GeoTools FeatureSource"
   (let [types (.getTypes (.getSchema gt-feature-source))]
-    (map #(.. % getName getLocalPart) types )))
+    (map #(keyword ( .. % getName getLocalPart)) types )))
 
 (defn read-properties
   "given a geotools feature, return a hash of properties that aren't geometries"

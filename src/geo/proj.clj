@@ -29,6 +29,6 @@
   [geometry input-epsg output-epsg]
   (. JTS transform (geometry)
      (. CRS findMathTransform
-        (get-proj input-epsg)
-        (get-proj output-epsg))))
+        (epsg->proj input-epsg)
+        (epsg->proj output-epsg))))
 
