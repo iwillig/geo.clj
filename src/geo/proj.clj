@@ -10,14 +10,14 @@
   [wkt]
   (. *crsfactory* createFromWKT  wkt))
 
-(defn get-epsg
+(defn proj->epsg
   "Returns a epsg code from a CRS object"
   [crs]
      (System/setProperty "org.geotools.referencing.forceXY" "true")
      (Hints/putSystemDefault (Hints/COMPARISON_TOLERANCE) 1e-9)
      (format "EPSG:%s"(CRS/lookupEpsgCode crs true)))
 
-(defn get-proj
+(defn epsg->proj
   [epsg]
   (. CRS decode epsg))
 

@@ -6,12 +6,7 @@
    [clojure.contrib.json :as json])
   (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
            [org.geotools.referencing CRS]
-           [javax.swing JFrame]
-           [org.jfree.chart JFreeChart ChartPanel]
-           [org.jfree.chart.plot XYPlot]
-           [org.geotools.renderer.chart
-            GeometryRenderer
-            GeometryDataset]
+           [org.geotools.renderer.chart GeometryDataset]                      
            [com.vividsolutions.jts.geom
             Geometry
             MultiPoint
@@ -52,6 +47,10 @@
   "Creates a geometry from well known text" 
   [string]
   (.read *reader* (str string)))
+
+(defn to-wkt
+  [geometry]
+  (.toText geometry))
 
 (defn create-coord
   "Creates a JTS Coordinate Seq"
@@ -99,20 +98,5 @@
   (.createMultiPolygon *factory*
                        (into-array (map #(create-polygon %) polygons))))
 
-
-(defn make-geometry-plot [geometies]
-  (let [gd (GeometryDataset. (into-array Geometry geometies))
-        render (GeometryRenderer.)]
-    (XYPlot. gd (.getDomain gd) (.getRange gd) render)))
-
-(defn view [geometies & {:keys [height width]
-                         :or {height 500 width 500}}]
-  (let [plot (make-geometry-plot geometies)
-        chart (doto (JFreeChart. plot)
-                (.removeLegend))
-        panel (ChartPanel. chart)]
-    
-    (doto (JFrame.) 
-      (.setContentPane panel)
-      (.setVisible true)
-      (.setSize height width))))
+(defn make-geometry-dataset [geometies]  
+  (GeometryDataset. (into-array Geometry geometies)))

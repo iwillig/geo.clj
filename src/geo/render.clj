@@ -7,14 +7,19 @@
             DefaultFeatureResults]
            [org.geotools.data.memory MemoryFeatureCollection]
            [javax.imageio ImageIO]
-           [java.io
-            File
+           [java.io File
             ByteArrayOutputStream
             ByteArrayInputStream
             FileOutputStream]
            [org.geotools.map DefaultMapContext
-            MapContext GraphicEnhancedMapContext]
+            MapContext
+            GraphicEnhancedMapContext]
+           [org.geotools.renderer.chart
+            GeometryRenderer
+            GeometryDataset]
            [javax.swing JFrame]
+           [org.jfree.chart JFreeChart ChartPanel]
+           [org.jfree.chart.plot XYPlot]
            [java.awt Color RenderingHints]
            [org.geotools.renderer.lite StreamingRenderer]
            [java.awt Rectangle]
@@ -22,9 +27,6 @@
            [org.geotools.swing JMapFrame]))
 
 (defn make-mapcontext
-  "builds a DefaultMapContext
-    Options can be:
-      :title \"Title of JFrame\""
   [& options]
   (let [[title bgcolor transparent] options]
     (doto (GraphicEnhancedMapContext.)
@@ -48,6 +50,23 @@
        (.setVisible true)))
 
 (defmulti viewer class)
+
+(defmethod viewer
+  GeometryDataset
+  [dataset & {:keys [height width]
+              :or {height 500 width 500}}]
+  (let [render (GeometryRenderer.)
+        plot (XYPlot. dataset
+                      (.getDomain dataset)
+                      (.getRange  dataset)
+                      render)
+        chart (doto (JFreeChart. plot)
+                (.removeLegend))
+        panel (ChartPanel. chart)]
+    (doto (JFrame.) 
+      (.setContentPane panel)
+      (.setVisible true)
+      (.setSize 500 500))))
 
 (defmethod viewer
   GraphicEnhancedMapContext
