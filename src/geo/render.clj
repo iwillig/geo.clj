@@ -49,7 +49,7 @@
        (.enableToolBar true)
        (.setVisible true)))
 
-(defmulti viewer class)
+(defmulti viewer (fn [x & more] (class x)))
 
 (defmethod viewer
   GeometryDataset
@@ -78,9 +78,9 @@
 
 (defmethod viewer
   ::collections
-    [gt-collection & frameoptions]
-    (let [map-context (apply make-mapcontext frameoptions)]
-      (.addLayer map-context gt-collection nil)
+    [gt-collection style]
+    (let [map-context (make-mapcontext)]
+      (.addLayer map-context gt-collection style)
       (make-jmapframe map-context)))
 
 (defn make-render [map-context graphics screen-area extent]
