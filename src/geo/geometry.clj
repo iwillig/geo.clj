@@ -7,6 +7,7 @@
   (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
            [org.geotools.referencing CRS]
            [org.geotools.renderer.chart GeometryDataset]                      
+           [com.vividsolutions.jts.io.gml2 GMLWriter GMLReader]
            [com.vividsolutions.jts.io WKBWriter WKBReader]
            [com.vividsolutions.jts.simplify DouglasPeuckerSimplifier]
            [com.vividsolutions.jts.geom
@@ -45,13 +46,12 @@
 (extend MultiPolygon json/Write-JSON
         {:write-json write-geometry})
 
+;; convenience functions to 
 (defn geometry->wkb [geom]
-  (let [writer (WKBWriter.)]
-    (.write writer geom)))
+  (.write (WKBWriter.) geom))
 
 (defn wkb->geometry [wkb]
-  (let [reader (WKBReader.)]
-    (.read reader wkb)))
+  (.read (WKBReader.) wkb))
 
 (defn wkt->geometry
   "Creates a geometry from well known text" 
@@ -61,6 +61,12 @@
 (defn geometry->wkt
   [geometry]
   (.toText geometry))
+
+(defn geometry->gml [geometry]
+  (.write (GMLWriter.) geometry))
+
+(defn gml->geometry [gml]
+  (.read (GMLReader.) gml *factory*))
 
 (defn create-coord
   "Creates a JTS Coordinate Seq"
@@ -107,6 +113,11 @@
   [polygons]
   (.createMultiPolygon *factory*
                        (into-array (map #(create-polygon %) polygons))))
+
+
+(defn simplify [geometry tolerance]
+  "Convenience function to simplifing an geometry"
+  (DouglasPeuckerSimplifier/simplify geometry tolerance))
 
 (defn make-geometry-dataset [geometies]  
   (GeometryDataset. (into-array Geometry geometies)))
