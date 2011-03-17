@@ -1,6 +1,7 @@
 (ns geo.style
   (:import
    [java.awt Color]
+   [org.geotools.styling SLD]
    [org.geotools.styling SLDParser StyleBuilder Rule]
    [org.geotools.factory CommonFactoryFinder]))
 
@@ -30,17 +31,33 @@
                  (make-literal width)
                  (make-literal opacity)))
 
-(defn make-point [& options]
-  (.createPointSymbolizer *style-builder*))
+;; simple styling with the SLD interface.
 
-(defn make-line [& options]
-  (.createLineSymbolizer *style-builder*))
+(defn make-point [{:keys [well-know-name line-color fill-color opacity size label font]
+                  :or {well-know-name "Square"
+                       line-color "#808080"
+                       fill-color "#ffffff"
+                       opacity 1.0
+                       size 1.0 }}]
+  (SLD/createPointStyle well-know-name (hex->color line-color) (hex->color fill-color)
+                        opacity
+                        size
+                        label
+                        font))
 
-(defn make-polygon [hash]
-  (let [fill (make-fill (:fill hash))
-        stroke (make-stroke (:stroke hash))]
-    (.createPolygonSymbolizer *style-factory* stroke fill nil)))
+(defn make-line [{:keys [line-color width label font]
+                  :or { line-color "#808080" width 1.0}}]
+  (SLD/createLineStyle (hex->color line-color) width label font))
 
+(defn make-polygon [{:keys [storke fill opacity label font]
+                :or   {storke "#808080" fill "#ffffff" opacity 1.0}}]
+  (SLD/createPolygonStyle (hex->color storke) (hex->color fill) opacity label font))
+
+
+
+
+;;; more complex styling
+;;; not finished 
 (defn make-rule [symbolizers]
   (let [rule (.createRule *style-builder* (into-array symbolizers))]
     rule))

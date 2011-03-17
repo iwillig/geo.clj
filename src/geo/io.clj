@@ -171,5 +171,5 @@
 
 
 ;; convenience functions for creating filters
-(defn make-filter [filter-text]
-  (org.geotools.filter.text.cql2.CQL/toFilter filter-text))
+(defn make-filter [cql]
+  (org.geotools.filter.text.cql2.CQL/toFilter cql))
