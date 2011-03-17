@@ -7,6 +7,8 @@
   (:import [org.geotools.geometry.jts JTS JTSFactoryFinder]
            [org.geotools.referencing CRS]
            [org.geotools.renderer.chart GeometryDataset]                      
+           [com.vividsolutions.jts.io WKBWriter WKBReader]
+           [com.vividsolutions.jts.simplify DouglasPeuckerSimplifier]
            [com.vividsolutions.jts.geom
             Geometry
             MultiPoint
@@ -43,12 +45,20 @@
 (extend MultiPolygon json/Write-JSON
         {:write-json write-geometry})
 
-(defn from-wkt
+(defn geometry->wkb [geom]
+  (let [writer (WKBWriter.)]
+    (.write writer geom)))
+
+(defn wkb->geometry [wkb]
+  (let [reader (WKBReader.)]
+    (.read reader wkb)))
+
+(defn wkt->geometry
   "Creates a geometry from well known text" 
   [string]
   (.read *reader* (str string)))
 
-(defn to-wkt
+(defn geometry->wkt
   [geometry]
   (.toText geometry))
 
@@ -100,3 +110,5 @@
 
 (defn make-geometry-dataset [geometies]  
   (GeometryDataset. (into-array Geometry geometies)))
+
+

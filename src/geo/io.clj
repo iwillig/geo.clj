@@ -40,7 +40,7 @@
       (.append string (str (string/join ":" propertry) ",")))
     (DataUtilities/createType name (.toString string))))
 
-(defn get-schema-list [gt-feature-source]
+(defn get-schema [gt-feature-source]
   "Returns the column names of a  GeoTools FeatureSource"
   (let [types (.getTypes (.getSchema gt-feature-source))]
     (map #(keyword ( .. % getName getLocalPart)) types )))
@@ -168,6 +168,7 @@
            nil?
            (map (fn [~(feature-binding 0)] ~@body)
                 features#)))))))
+
 
 ;; convenience functions for creating filters
 (defn make-filter [filter-text]

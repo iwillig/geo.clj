@@ -4,9 +4,11 @@
 
 (def shape (data-store  "shp:///home/ivan/data/states.shp"))
 
-(defn -main [& args]
+;;; render shape using jcharts
+(defn main []
   (with-features [f (-> shape (read-features))]
     (viewer (make-geometry-dataset
-             [(:geometry  (first
-                            (filter #(= "New York"
-                                        (get-in % [:properties :STATE_NAME])) f)))]))))
+             [(.buffer (:geometry  (first
+                                     (filter #(= "Texas"
+                                                 (get-in % [:properties :STATE_NAME])) f))) 0.5) ]))))
+

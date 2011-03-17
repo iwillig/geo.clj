@@ -5,6 +5,7 @@
   (:import [org.geotools.data
             FeatureSource Query
             DefaultFeatureResults]
+           [org.geotools.data.store ContentFeatureCollection]
            [org.geotools.data.memory MemoryFeatureCollection]
            [javax.imageio ImageIO]
            [java.io File
@@ -35,6 +36,7 @@
       (.setTransparent (or transparent false)))))
 
 (defn make-map [map-config]
+  "Makes a map from an hashmap"
   (let [mapcontext (apply make-mapcontext
                           (vals (dissoc map-config :layers)))]
     (doseq [layer (:layers map-config)]
@@ -75,6 +77,7 @@
 
 (derive MemoryFeatureCollection ::collections)
 (derive DefaultFeatureResults   ::collections)
+(derive ContentFeatureCollection ::collections)
 
 (defmethod viewer
   ::collections
@@ -90,6 +93,8 @@
         RenderingHints/KEY_ANTIALIASING RenderingHints/VALUE_ANTIALIAS_ON))
       (.setContext  map-context)
       (.paint graphics screen-area extent)))
+
+(defmulti render (fn [x & more] (class x)))
 
 (defn render
   [feature-collection output extent

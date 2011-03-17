@@ -4,12 +4,9 @@
    [org.geotools.styling SLDParser StyleBuilder Rule]
    [org.geotools.factory CommonFactoryFinder]))
 
-
 (def *style-factory*       (CommonFactoryFinder/getStyleFactory nil))
 (def *filter-facotry*      (CommonFactoryFinder/getFilterFactory nil))
 (def *style-builder*       (StyleBuilder.))
-(def *default-color*       "#000000")
-(def *default-opacity*     "1.0")
 
 (defn read-sld
   [path]
@@ -54,27 +51,3 @@
         style (.createStyle *style-factory*)]
     (.add (.featureTypeStyles style)feature-type-style) style))
 
-(def rule-list
-  [{:name "Polygon Style"
-    :symbolizers
-    [{:type "Polygon"
-      :symbol {:fill { :color "#1a286d"
-                      :opacity ".5"}
-               :stroke { :color "#1a286d"
-                        :opacity "1.0"
-                        :width ".10" } }}]}])
-
-(defn match-symbolizer [type]
-  (condp = type
-      "Point"   make-point
-      "Line"    make-line
-      "Polygon" make-polygon))
-
-(defn compile-style [rule-list]
-  "Takes a list of rules and returns a style"
-  (make-style
-   (map (fn [rule]
-          (make-rule (map (fn [symbolizer]
-                            ((match-symbolizer (:type symbolizer))
-                             (:symbol symbolizer) )) (:symbolizers rule))))
-        rule-list)))
