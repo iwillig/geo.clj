@@ -1,4 +1,5 @@
 (ns geo.style
+  (:use [geo io])
   (:import
    [java.awt Color]
    [org.geotools.styling SLDParser
@@ -7,7 +8,7 @@
    [org.geotools.factory CommonFactoryFinder]))
 
 (def *style-factory*       (CommonFactoryFinder/getStyleFactory nil))
-(def *filter-facotry*      (CommonFactoryFinder/getFilterFactory nil))
+(def *filter-factory*      (CommonFactoryFinder/getFilterFactory nil))
 (def *style-builder*       (StyleBuilder.))
 
 (defn read-sld
@@ -19,7 +20,7 @@
   (Color/decode hex))
 
 (defn make-literal [literal]
-  (.literal *filter-facotry* literal))
+  (.literal *filter-factory* literal))
 
 (defn make-fill [{:keys [color opacity]
                   :or {color "#ffffff" opacity 1.0}}]
@@ -34,7 +35,6 @@
                  (make-literal width)
                  (make-literal opacity)))
 
-;; simple styling with the SLD interface.
 
 (defn style-point [{:keys [well-know-name
                           line-color fill-color
@@ -60,7 +60,6 @@
   (SLD/createPolygonStyle (hex->color storke) (hex->color fill)
                           opacity label font))
 
-
 (defn symbolizer-point [& options]
   (.createPointSymbolizer *style-builder*))
 
@@ -73,7 +72,7 @@
     (.createPolygonSymbolizer *style-factory* stroke fill nil)))
 
 (defn make-legend []
-  (GraphicImpl. *filter-facotry*))
+  (GraphicImpl. *filter-factory*))
 
 (defn make-rule [symbolizers &
                  {:keys [legend name filter else-filter max min]
@@ -91,8 +90,7 @@
     (.add (.featureTypeStyles style) feature-type-style) style))
 
 
-(def style (make-style [(make-rule [(symbolizer-polygon {})]
-                                   :legend (make-legend))
+(def style (make-style [(make-rule [(symbolizer-polygon {})])
                         (make-rule [(symbolizer-polygon
                                      {:fill {:color "#996799"}
                                       :stroke {:color "#000000"}})]

@@ -14,5 +14,5 @@
                  [org.geotools/gt-shapefile "2.7-beta1"]
                  [org.geotools/gt-swing "2.7-beta1"]]
   :main geo.core
-  :jvm-opts ["-Xmx500M"]
+  :jvm-opts ["-Xmx1024m"]
   :dev-dependencies [[swank-clojure "1.2.0"]])

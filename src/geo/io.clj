@@ -3,6 +3,7 @@
   (:import
    [java.io File]
    [com.vividsolutions.jts.geom Geometry]
+   [org.geotools.swing ProgressWindow]
    [org.geotools.data DefaultTransaction DataUtilities]
    [org.geotools.feature FeatureCollection]
    [org.geotools.feature.simple SimpleFeatureBuilder]
@@ -169,6 +170,16 @@
            (map (fn [~(feature-binding 0)] ~@body)
                 features#)))))))
 
+
+(defn shp->pg [source dest]
+  (let [schema (.getSchema source)
+        progress (ProgressWindow. nil)]
+    (try
+      (.started progress)
+      (.createSchema dest schema)
+      (write-features dest (.getTypeName schema) source)
+      (.complete progress)
+      (catch Exception e (println e)))))
 
 ;; convenience functions for creating filters
 (defn make-filter [cql]
