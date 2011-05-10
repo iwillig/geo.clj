@@ -27,7 +27,7 @@
 
 (defn transform
   [geometry input-epsg output-epsg]
-  (. JTS transform (geometry)
+  (. JTS transform geometry
      (. CRS findMathTransform
         (epsg->proj input-epsg)
         (epsg->proj output-epsg))))

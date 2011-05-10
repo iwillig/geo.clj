@@ -94,8 +94,6 @@
       (.setContext  map-context)
       (.paint graphics screen-area extent)))
 
-(defmulti render (fn [x & more] (class x)))
-
 (defn render
   [feature-collection output extent
    & {:keys [height width style]

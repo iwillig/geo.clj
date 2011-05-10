@@ -30,7 +30,7 @@
                    {"dbtype" "postgis" "host" host "port" port
                     "user" user "passwd" pass "database" db})
          "h2://" {"dbtype" "h2"
-                  "dbname" (.substring uri (count "h2://"))})]
+                  "database" (.substring uri (count "h2://"))})]
     (DataStoreFinder/getDataStore params)))
 
 
