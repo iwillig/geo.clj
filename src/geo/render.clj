@@ -104,6 +104,7 @@
         mapcontext (make-mapcontext)]
     (.addLayer mapcontext feature-collection style)
     (make-render mapcontext graphics screen-area extent)
+    (.dispose mapcontext)
     (ImageIO/write image "png" output)))
 
 
