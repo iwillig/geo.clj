@@ -14,7 +14,7 @@ Requirements
 
 Install
 ----------
-#. Install Java
+1. Install Java
 Arch linux::
 
    sudo pacman -S jdk
@@ -24,7 +24,7 @@ Install on debian/ubuntu::
    sudo aptitude install sun-java6-jdk
 
 
-#. Install Maven
+2. Install Maven
 Install on Arch Linux::
 
   sudo pacman -S maven
@@ -33,13 +33,14 @@ Install on Ubuntu::
 
   sudo aptitude install maven2
 
-#. Install Leiningen::
+3. Install Leiningen::
 
 Geo.clj requires leiningen. Leiningen is a clojure based wrapper to
 maven. Please see the leiningen github project for install
 instructions.
 
-#. To install geo.clj and its dependences::
+
+4. To install geo.clj and its dependences::
 
    git clone git://github.com/iwillig/geo.clj.git
    cd geo.clj
@@ -53,15 +54,3 @@ To use geo.clj::
    (use 'geo.io)
    (viewer (-> (data-store "shp:///path/to/shapefile.shp")
       (read-features)) nil)
-
-
-
-To do
-------
-
-#. Add support for GeoJSON
-#. Add support for Grids
-#. Add support for David's CSS libraries (Requires a custom build of a
- Scala lib)
-#. Write documentation
-#. 
