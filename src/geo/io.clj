@@ -3,6 +3,7 @@
   (:import
    [java.io File]
    [com.vividsolutions.jts.geom Geometry]
+   [org.geotools.data.shapefile ShapefileDataStoreFactory]
    [org.geotools.swing ProgressWindow]
    [org.geotools.data DefaultTransaction DataUtilities]
    [org.geotools.feature FeatureCollection]
@@ -33,6 +34,12 @@
                   "database" (.substring uri (count "h2://"))})]
     (DataStoreFinder/getDataStore params)))
 
+
+(defn create-shapefile [file]
+  (let [factory (ShapefileDataStoreFactory.)]
+    (.createNewDataStore factory
+                         {"url" (-> file  (.toURI)(.toURL))
+                          "create spatial index" true })))
 
 (defn create-schema [schema]
   (let [name (:name schema)

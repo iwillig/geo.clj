@@ -14,30 +14,30 @@ Requirements
 
 Install
 ----------
-#. Install Java:: 
+#. Install Java
+Arch linux::
 
-   # Install on Arch Linux
    sudo pacman -S jdk
 
-   # Install on ubuntu
+Install on debian/ubuntu::
+
    sudo aptitude install sun-java6-jdk
 
 
-#. Install Maven::
+#. Install Maven
+Install on Arch Linux::
 
-  # Install on Arch Linux
   sudo pacman -S maven
   
-  # Install on Ubuntu
+Install on Ubuntu::
+
   sudo aptitude install maven2
 
 #. Install Leiningen::
 
-   # download
-   curl -XGET http://
-   
-   # Install Leiningen 
-   lein self-install
+Geo.clj requires leiningen. Leiningen is a clojure based wrapper to
+maven. Please see the leiningen github project for install
+instructions.
 
 #. To install geo.clj and its dependences::
 

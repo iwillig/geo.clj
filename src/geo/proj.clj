@@ -17,6 +17,11 @@
      (Hints/putSystemDefault (Hints/COMPARISON_TOLERANCE) 1e-9)
      (format "EPSG:%s"(CRS/lookupEpsgCode crs true)))
 
+(defn shape->epsg [datastore]
+  (let [schema (.getSchema datastore)]
+    (proj->epsg (.getCoordinateReferenceSystem schema))))
+
+
 (defn epsg->proj
   [epsg]
   (. CRS decode epsg))
@@ -24,6 +29,7 @@
 (defn get-area
   [projection]
    (first (.getGeographicElements (.getDomainOfValidity projection))))
+
 
 (defn transform
   [geometry input-epsg output-epsg]
